@@ -197,14 +197,17 @@ sub _append_array_data
 	foreach( @_ )
 	{
 		## Look for elements that are 'attachable'.
-		if( ( $_ ne "" ) && ( $_->isa( "XML::LibXML::Node" ) ) )
+		if( ( defined( $_ ) ) && ( $_ ne "" ) )
 		{
-			$node->appendChild( $_ );
-		}
-		else
-		{
-			## If we get to this point assume we have appendable text.
-			$node->appendText( $_ )
+			if( ( ref ) && ( $_->isa( "XML::LibXML::Node" ) ) )
+			{
+				$node->appendChild( $_ );
+			}
+			else
+			{
+				## If we get to this point assume we have appendable text.
+				$node->appendText( $_ )
+			}
 		}
 	}
 
@@ -282,7 +285,7 @@ XML::XForms::Generator::Common
 
 =head1 SYNOPSIS
 
- use XML::XForms::Common;
+ use XML::XForms::Generator::Common;
 
 =head1 DESCRIPTION
 

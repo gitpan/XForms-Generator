@@ -164,7 +164,7 @@ XML::XForms::Generator::Action
 
 =head1 SYNOPSIS
 
- use XML::XForms::Action;
+ use XML::XForms::Generator::Action;
 
 =head1 DESCRIPTION
 

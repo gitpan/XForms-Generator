@@ -1,6 +1,11 @@
 XML::XForms::Generator Revision History
 =======================================
 
+0.4.5 Thu Aug 01 0:914:18 2002
+	- Added some more sanity checks to ensure that "we do the right thing [tm]"
+	  with adding data to the DOM tree.
+	- Documentation corrections from Mike Castle <dalgoda@ix.netcom.com>
+
 0.4.0 Sun Jul 21 13:59:30 2002
 	- Moved more of the 'schema' control variables into Common.pm
 	- Added a hash with all of the possible events in XForms.

@@ -1,5 +1,5 @@
 <!-- ==================================================================== -->
-<!-- Name: XForms XLST conversion to HTML Forms                           -->
+<!-- Name: XForms XSLT conversion to HTML Forms                           -->
 <!-- Author: D. Hageman <dhageman@dracken.com>                            -->
 <!-- Copyright and License: Same terms as XML::XForms::Generator.         -->
 <!-- ==================================================================== -->
