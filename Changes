@@ -1,0 +1,9 @@
+XML::XForms::Generator Revision History
+=======================================
+
+0.2.0 Mon Jul 01 15:10:32 2002
+	- Basic functionality has been completed.
+
+0.1.0 Wed Jun 26 20:06:22 2002
+	- original version; created by h2xs 1.21 with options
+		-A -X -n XML::XForms::Generator

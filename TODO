@@ -1,0 +1,6 @@
+XML::XForms::Generator TODO list
+================================
+
+*) Document the methods of XML::XForms::Generator::Control.
+*) Document the methods of XML::XForms::Generator::Model.
+*) Need to add an "action" interface.

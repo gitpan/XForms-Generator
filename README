@@ -1,0 +1,31 @@
+XML::XForms::Generator version 0.2.0
+====================================
+
+Perl library designed to assist a user in the creation of document elements
+based on the W3's XForms working draft.
+
+The XForms webpage is located at: http://www.w3.org/MarkUp/Forms/
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+ *) Carp
+ *) Exporter
+ *) XML::LibXML
+ *) Exporter::Cluster
+
+COPYRIGHT AND LICENSE
+
+Copyright (C) 2002 D. Hageman (Dracken Technologies).
+All rights reserved.
+
+This program is free software; you can redistribute it and/or modify 
+it under the same terms as Perl itself.
