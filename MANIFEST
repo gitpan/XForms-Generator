@@ -1,9 +1,15 @@
 Changes
 example/example.pl
+example/sample.xml
 Generator.pm
+Generator/Action.pm
 Generator/Control.pm
+Generator/Common.pm
 Generator/Model.pm
 Makefile.PL
 MANIFEST
 README
 t/01_use.t
+t/02_inheritance.t
+TODO
+xslt/xhtml.xsl

@@ -23,53 +23,27 @@ use warnings;
 
 use Carp;
 use XML::LibXML;
+use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-$XML::XForms::Generator::Model::VERSION = "0.2.0";
-
 our @EXPORT = qw( xforms_model );
 
-our $XFORMS_NSURI = "http://www.w3.org/2002/01/xforms";
-our $XFORMS_NSPREFIX = "xforms";
-
-## XForms Single Node Binding Attributes
-our @SN_ATTR = qw( ref model bind );
-## XForms Nodeset Binding Attributes
-our @NS_ATTR = qw( nodeset model bind );
+$XML::XForms::Generator::Model::VERSION = "0.3.5";
 
 ## XForms Model Elements with attributes.
 our %MODEL_ELEMENT = (
+	'action'		=>	[],
+	'bind'			=>	[ 'ref', 'type', 'readOnly', 'required', 'relevant',
+						  'isValid', 'calculate', 'maxOccurs', 'minOccurs' ],
+	'extension'		=>	[],
 	'instance'		=>	[ 'href' ],
 	'schema'		=>	[ 'href' ],
-	'privacy'		=>	[ 'href' ],
 	'submitInfo'	=>	[ @SN_ATTR, 'action', 'mediaTypeExtension', 'method',
 						  'version', 'indent', 'encoding', 'mediaType', 
 						  'omitXMLDeclaration', 'standalone', 
 						  'CDATASectionElements', 'replace' ],
-	'bind'			=>	[ 'ref', 'type', 'readOnly', 'required', 'relevant',
-						  'isValid', 'calculate', 'maxOccurs', 'minOccurs' ],
-	'action'		=>	[],
-	'extension'		=>	[]
-);
-
-## XForms Action Elements with attributes.
-our %XFORMS_ACTION = (
-	'dispatch'			=>		[ 'name', 'target', 'bubbles', 'cancelable' ],
-	'refresh'			=>		[],
-	'recalculate'		=>		[],
-	'revalidate'		=>		[],
-	'setFocus'			=>		[ 'idref' ],
-	'loadURI'			=>		[ @SN_ATTR, 'xlink:href', 'xlink:show' ],
-	'setValue'			=>		[ @SN_ATTR, 'value' ],
-	'submitInstance'	=>		[ 'id', 'submitInfo' ],
-	'resetInstance'		=>		[ 'model' ],
-	'setRepeatCursor'	=>		[ 'repeat', 'cursor' ],
-	'insert'			=>		[ @NS_ATTR, 'at', 'position' ],
-	'delete'			=>		[ @NS_ATTR, 'at' ],
-	'toggle'			=>		[ 'case' ],
-	'script'			=>		[ 'type', 'role' ],
-	'message'			=>		[ @SN_ATTR, 'xlink:href', 'level' ]
+	'privacy'		=>	[ 'href' ],
 );
 
 ## Loop through the model elements and build convience functions for them.
@@ -219,33 +193,9 @@ sub xforms_model
 ##  Internal Function(s)                                            ##
 ##==================================================================##
 
-##----------------------------------------------##
-##  _append_array_data                          ##
-##----------------------------------------------##
-##  Convience function to analyze an array and  ##
-##  append it appropriately.                    ##
-##----------------------------------------------##
-sub _append_array_data
-{
-	my $node = shift;
-
-	## Loop through the data ...
-	foreach( @_ )
-	{
-		## Look for elements that are attachable.
-		if( $_->isa( "XML::LibXML::Node" ) )
-		{
-			$node->appendChild( $_ );
-		}
-		else
-		{
-			## We are going to assume this will be 'appendable' text.
-			$node->appendText( $_ );
-		}
-	}
-
-	return;
-}
+##
+## None.
+##
 
 ##==================================================================##
 ##  End of Code                                                     ##
@@ -381,6 +331,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 =head1 SEE ALSO
 
  XML::XForms::Generator
+ XML::XForms::Generator::Action
  XML::XForms::Generator::Control
  XML::LibXML
  XML::LibXML::DOM

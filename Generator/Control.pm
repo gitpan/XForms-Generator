@@ -23,45 +23,38 @@ use warnings;
 
 use Carp;
 use XML::LibXML;
+use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-$XML::XForms::Generator::Control::VERSION = "0.3.0";
-
-our $XFORMS_NSURI = "http://www.w3.org/2002/01/xforms";
-our $XFORMS_NSPREFIX = "xforms";
-
-## XForms Common Attributes
-our @CM_ATTR = qw( xml:lang class navIndex accessKey );
-## XForms Single Node Binding Attributes
-our @SN_ATTR = qw( ref model bind );
-## XForms Nodeset Binding Attributes
-our @NS_ATTR = qw( nodeset model bind );
+$XML::XForms::Generator::Control::VERSION = "0.3.5";
 
 ## XForms Control Attribute Hash
 our %XFORMS_CONTROL = (
-	'xforms_button'		=>	[ @CM_ATTR ],
-	'xforms_choices'	=>	[],
-	'xforms_input'		=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
-	'xforms_item'		=>	[ 'id' ],
-	'xforms_itemset'	=>	[ @NS_ATTR ],
-	'xforms_output'		=>	[ @SN_ATTR ],
-	'xforms_range'		=>	[ @CM_ATTR, @SN_ATTR, 'start', 'end', 'stepSize' ],
-	'xforms_secret'		=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
-	'xforms_selectMany'	=>	[ @CM_ATTR, @SN_ATTR, 'selectUI' ],
-	'xforms_selectOne'	=>	[ @CM_ATTR, @SN_ATTR, 'selectUI', 'selection' ],
-	'xforms_submit'		=>	[ @CM_ATTR, 'submitInfo' ],
-	'xforms_textarea'	=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
-	'xforms_upload'		=>	[ @CM_ATTR, @SN_ATTR, 'mediaType' ],
-	'xforms_value'		=>	[ @SN_ATTR ]  );
+	'button'		=>	[ @CM_ATTR ],
+	'choices'		=>	[],
+	'input'			=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
+	'item'			=>	[ 'id' ],
+	'itemset'		=>	[ @NS_ATTR ],
+	'output'		=>	[ @SN_ATTR ],
+	'range'			=>	[ @CM_ATTR, @SN_ATTR, 'start', 'end', 'stepSize' ],
+	'secret'		=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
+	'selectMany'	=>	[ @CM_ATTR, @SN_ATTR, 'selectUI' ],
+	'selectOne'		=>	[ @CM_ATTR, @SN_ATTR, 'selectUI', 'selection' ],
+	'submit'		=>	[ @CM_ATTR, 'submitInfo' ],
+	'textarea'		=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
+	'upload'		=>	[ @CM_ATTR, @SN_ATTR, 'mediaType' ],
+	'value'			=>	[ @SN_ATTR ],  );
 
 ## XForms Common Child Elements
 our %CONTROL_ELEMENT = (
-	'caption'	=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
-	'help'		=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
-	'hint'		=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
+	'action'	=>  [],
+	'actions'	=>  [],
 	'alert'		=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
-	'extension'	=>	[] );
+	'caption'	=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
+	'extension'	=>	[],
+	'help'		=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
+	'hint'		=>	[ @CM_ATTR, @SN_ATTR, 'href' ], );
 
 no strict "refs";
 
@@ -70,13 +63,10 @@ no strict "refs";
 foreach my $control ( keys( %XFORMS_CONTROL ) )
 {
 	## Add the control name to be exported.
-	Exporter::export_tags( $control );
+	Exporter::export_tags( "xforms_$control" );
 	
 	## Create the closure ... add it to the symbol table
-	*{ $control } = sub {
-
-		## Clean up control to get the correct type.
-		$control =~ s/^xforms_//g;
+	*{ "xforms_$control" } = sub {
 		
 		## Pull in the parameters.
 		my %params = @_;
@@ -103,7 +93,7 @@ foreach my $child ( keys( %CONTROL_ELEMENT ) )
 {
 	## Generate a set function for the element.
 	*{ "set" . ucfirst( $child ) } = sub {
-
+	
 		my( $self, $attribute, @data ) = @_;
 
 		## Determine the name of the XForms control.
@@ -238,34 +228,6 @@ sub setInstanceData
 ##==================================================================##
 
 ##----------------------------------------------##
-##  _append_array_data                          ##
-##----------------------------------------------##
-##  Convience function to analyze an array and  ##
-##  append it appropriately.                    ##
-##----------------------------------------------##
-sub _append_array_data
-{
-	my $node = shift;
-
-	## Loop through the data ...
-	foreach( @_ )
-	{
-		## Look for elements that are attachable.
-		if( $_->isa( "XML::LibXML::Node" ) )
-		{
-			$node->appendChild( $_ );
-		}
-		else
-		{
-			## We are going to assume this will be 'appendable' text.
-			$node->appendText( $_ );
-		}
-	}
-
-	return;
-}
-
-##----------------------------------------------##
 ##  _append_children                            ##
 ##----------------------------------------------##
 ##  Convience function in which one can set     ##
@@ -319,60 +281,6 @@ sub _append_children
 	}
 
 	return;
-}
-
-##----------------------------------------------##
-##  _ensure_xpath                               ##
-##----------------------------------------------##
-##  Convience function that will take a xpath   ##
-##  and build it if it doesn't exist.           ##
-##----------------------------------------------##
-sub _ensure_xpath
-{
-	my( $node, $xpath ) = @_;
-
-	## We need a variable that will hold our search pattern after
-	## we build it and also a temporary variable for our loop
-	## down below.
-	my( @search );
-	my $last = $node;
-
-	## Clean up the xpath a bit.
-	$xpath =~ s/^\/\///g;
-	
-	## Break up the XPath statement into chunks.
-	my @path = split( /\//, $xpath );
-
-	## Loop through our path building our search pattern
-	foreach( my $loop = 0; $loop < scalar( @path ); $loop++ )
-	{
-		$search[ $loop ] = "/";
-
-		foreach( my $loop2 = 0; $loop2 <= $loop; $loop2++ )
-		{
-			$search[ $loop ] .= "/" . $path[ $loop2 ];
-		}
-	}
-
-	foreach( @search )
-	{
-		my( $element ) = $node->findnodes( $_ );
-
-		if( defined( $element ) )
-		{
-			$last = $element;
-		}
-		else
-		{
-			## Grab the last part of the XPath expression.
-			$_ =~ /\/(\w+)$/;
-
-			## Create the element and append it to the node tree.
-			$last = $last->appendChild( XML::LibXML::Element->new( $1 ) );
-		}
-	}
-
-	return( $last );
 }
 
 ##----------------------------------------------##
@@ -487,6 +395,16 @@ pairs that are associated with a controls child elements.
 
 =over 4 
 
+=item setAction ( { ATTRIBUTES }, @CHILDREN )
+
+Convience method to set the alert child of a control.  
+This method takes a reference to a hash of name => value pairings for the attributes and an array of XML::LibXML enable DOM data or text.  Please note that if an attribute is given that is not part of the XForms specification that it will be ignored.
+
+=item setActions ( { ATTRIBUTES }, @CHILDREN )
+
+Convience method to set the alert child of a control.  
+This method takes a reference to a hash of name => value pairings for the attributes and an array of XML::LibXML enable DOM data or text.  Please note that if an attribute is given that is not part of the XForms specification that it will be ignored.
+
 =item setAlert ( { ATTRIBUTES }, @CHILDREN )
 
 Convience method to set the alert child of a control.  
@@ -527,6 +445,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 =head1 SEE ALSO
 
  XML::XForms::Generator
+ XML::XForms::Generator::Action
  XML::XForms::Generator::Model
  XML::LibXML
  XML::LibXML::DOM

@@ -1,5 +1,6 @@
 XML::XForms::Generator TODO list
 ================================
 
-*) Need to add an "action" interface.
+*) Finish XSLT file for transforming XForms to HTML forms.
+*) Finish implementing the actions.
 *) Look for a better methodology for generating the XPath to instance data.

@@ -23,10 +23,11 @@ use warnings;
 
 our @ISA = qw( Exporter::Cluster );
 
-our %EXPORT_CLUSTER = ( 'XML::XForms::Generator::Model'		=>	[],
-						'XML::XForms::Generator::Control'	=>	[] );
+our %EXPORT_CLUSTER = ( 'XML::XForms::Generator::Action'	=>	[],
+						'XML::XForms::Generator::Control'	=>	[],
+						'XML::XForms::Generator::Model'		=>	[] );
 
-$XML::XForms::Generator::VERSION = "0.3.0";
+$XML::XForms::Generator::VERSION = "0.3.5";
 
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##
