@@ -6,6 +6,8 @@ based on the W3's XForms working draft.
 
 The XForms webpage is located at: http://www.w3.org/MarkUp/Forms/
 
+The API is currently unstable and will change as the specification changes.
+
 INSTALLATION
 
 To install this module type the following:
@@ -25,6 +27,7 @@ DEPENDENCIES
 COPYRIGHT AND LICENSE
 
 Copyright (C) 2002 D. Hageman (Dracken Technologies).
+
 All rights reserved.
 
 This program is free software; you can redistribute it and/or modify 

@@ -1,6 +1,21 @@
 XML::XForms::Generator Revision History
 =======================================
 
+0.61 Tue Nov 26 18:22:26 2002
+	- Updated XML::XForms::Generator to the latest XForms specification.
+	- Updated documentation.
+
+0.60 Wed Sep 25 18:03:46 2002
+   - Updated XML::XForms::Generator to the latest XForms specification.
+     *WARNING* This change will break your pre-existing code! *WARNING*
+   - Changed version system as it appears Perl didn't like they way I 
+     was doing it before.
+   - Added a new version of Rick's XSLT to handle the new specification.
+
+0.5.2 Mon Sep 02 12:43:04 2002
+	- Added the latest version of Rick Frankel's XForms -> HTML XSLT.
+	- Minor code revisions.
+
 0.5.1 Mon Aug 12 23:36:50 2002
 	- Small bug in node identification with the result of attributes
       not getting set correctly (maybe that isn't a small bug after all).

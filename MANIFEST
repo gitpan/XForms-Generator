@@ -1,6 +1,5 @@
 Changes
 example/example.pl
-example/sample.xml
 Generator/Action.pm
 Generator/Common.pm
 Generator/Control.pm
@@ -12,8 +11,16 @@ MANIFEST
 README
 t/01_use.t
 t/02_inheritance.t
+t/03_model.t
+t/04_control.t
 TODO
-xslt/html/README
-xslt/html/test.xml
-xslt/html/xforms.css
-xslt/html/xforms.xsl
+xsl/xhtml/ChangeLog
+xsl/xhtml/PostFilter.pm
+xsl/xhtml/README.html
+xsl/xhtml/README.xml
+xsl/xhtml/test.xml
+xsl/xhtml/t/filter_test.cgi
+xsl/xhtml/t/filter_test.params
+xsl/xhtml/t/instance.xml
+xsl/xhtml/xforms.css
+xsl/xhtml/xforms.xsl

@@ -27,45 +27,32 @@ use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.5.1";
+our $VERSION = "0.61";
 
-no strict "refs";
+no strict 'refs';
 
-## Loop through each element in the CONTROLS_ATTR hash and generate a
-## subroutine to match it.
-foreach my $uiobject ( keys( %XFORMS_USER_INTERFACE ) )
+foreach my $userinterface ( @XFORMS_USERINTERFACE )
 {
-	## Add the control name to be exported.
-	Exporter::export_tags( "xforms_$uiobject" );
+	## We need to temporarily pop of the namespace prefix for our
+	## work here.
+	$userinterface =~ s/^xforms://g;
+
+    Exporter::export_tags( "xforms_$userinterface" );
 	
-	## Create the closure ... add it to the symbol table
-	*{ "xforms_$uiobject" } = sub {
-		
-		## Pull in the parameters.
-		my $attributes = shift;
-		my $uichildren = shift;
-		my @children = @_;
-		
-		## Generate a the new control.
-		my $self = XML::XForms::Generator::UserInterface->new( $uiobject );
-		
-		## Add the namespace to the node.
-		$self->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
-		
-		## Append the appropriate attributes of the control.
-		$self->_set_attributes( $attributes );
+	*{ "xforms_$userinterface" } = sub {
 
-		## Append the the children of the control.
-		$self->_append_children( $uichildren );
-		
-		## Stick any other data we have on the element.
-		$self->_append_array_data( @children );
+		my( $attributes, @children ) = @_;
 
-		return( $self );
+		my $node = XML::XForms::Generator::UserInterface->new( $userinterface );
+
+		__xforms_attribute( $node, $attributes );
+		__xforms_children( $node, @children );
+
+		return( $node );
 	};
 }
 
-use strict "refs";
+use strict 'refs';
 
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##
@@ -81,14 +68,16 @@ sub new
 	## Pull in what type of an object we will be.
 	my $type = shift;
 	## Pull in the parameters ...
-	my $uiobject = shift;
+	my $userinterface = shift;
 	## The object we are generating is going to be a child class of
 	## XML::LibXML's DOM objects.
-	my $self = XML::LibXML::Element->new( $uiobject );
+	my $self = XML::LibXML::Element->new( $userinterface );
 	## Determine what exact class we will be blessing this instance into.
 	my $class = ref( $type ) || $type;
 	## Bless the class for it is good [tm].
 	bless( $self, $class );
+	## We need to set our namespace on our model element and activate it.
+	$self->setNamespace( $XFORMS_NAMESPACE{xforms}, "xforms", 1 );
 	## Send it back to the caller all happy like.
 	return( $self );
 }
@@ -108,63 +97,85 @@ sub DESTROY
 ##  Method(s)                                                       ##
 ##==================================================================##
 
+no strict 'refs';
+
+foreach my $element ( @XFORMS_USERINTERFACE_ELEMENT )
+{
+	## We need to temporarily remove the namespace prefix for our work.
+	$element =~ s/^xforms://g;
+
+##----------------------------------------------##
+##  appendCHILDENAME                            ##
+##----------------------------------------------##
+##  Method generation for the common child      ##
+##  elements of controls.                       ##
+##----------------------------------------------##
+	*{ "append" . ucfirst( $element ) } = sub {
+
+		my( $self, $attributes, @children ) = @_;
+
+		## We need to determine what type of control we are working with.
+		my $type = $self->nodeName;
+
+		## We set a status bit to false indicating that at the momment we
+		## don't know if this particular control has the potential of
+		## having the child element in question attached to it.
+		my $status = 0;
+
+		## Loop through all the potential child elements looking for it.
+		foreach( @{ $XFORMS_SCHEMA{ $type }->[3] },
+				 @{ $XFORMS_SCHEMA{ $type }->[4] } )
+		{
+			## When we find it, make sure we change our status bit.
+			if(  ( $_ eq "$element" ) || ( $_ eq "xforms:$element" ) )
+			{
+				$status = 1;
+			}
+		}
+
+		if( $status )
+		{
+			## If status is true, then proceed to build and append the 
+			## child element.
+			my $node = XML::LibXML::Element->new( $element );
+
+			$self->appendChild( $node );
+
+			$node->setNamespace( $XFORMS_NAMESPACE{xforms}, "xforms", 1 );
+
+			__xforms_attribute( $node, $attributes );
+			__xforms_children( $node, @children );
+	
+			return( $node );
+		}
+		else
+		{
+			croak( qq|Error: $type control does not have the ability to have |,
+				   qq|a $element child element| );
+		}
+	};
+
+##----------------------------------------------##
+##  getCHILDENAME                               ##
+##----------------------------------------------##
+##  Method for retrieval of the control child   ##
+##  elements.                                   ##
+##----------------------------------------------##
+	*{ "get" . ucfirst( $element ) } = sub {
+
+		my $self = shift;
+
+		my @nodes = 
+			$self->getElementsByTagNameNS( $XFORMS_NAMESPACE{ 'xforms' },
+										   $element );
+
+		return( @nodes );
+	};
+}
+
 ##==================================================================##
 ##  Internal Function(s)                                            ##
 ##==================================================================##
-
-##----------------------------------------------##
-##  _append_children                            ##
-##----------------------------------------------##
-##  Convience function in which one can set     ##
-##  common children quickly.                    ##
-##----------------------------------------------##
-sub _append_children
-{
-	my( $self, $children ) = @_;
-
-	## Right now only the group element has the capability of having a 
-	## caption.  This subroutine at the momment could be considered 
-	## overkill at the momment, but we use it to keep it easy to add
-	## features later.
-	if( $self->localname eq "group" )
-	{
-		if( defined( $$children{ 'caption' } ) )
-		{
-			my $node = XML::LibXML::Element->new( 'caption' );
-	
-			$node->appendText( $$children{ 'caption' } );
-
-			$self->appendChild( $node );
-			
-			$node->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
-		}
-	}
-
-	return;
-}
-
-##----------------------------------------------##
-##  _set_attributes                             ##
-##----------------------------------------------##
-##  Convience function in which you can set     ##
-##  name/value attribute pairs quickly.         ##
-##----------------------------------------------##
-sub _set_attributes
-{
-	my( $self, $attributes ) = @_;
-	
-	foreach( @{ $XFORMS_USER_INTERFACE{ $self->localname } } )
-	{
-		## If the attribute is defined, then go ahead and work with it.
-		if( defined( $$attributes{ $_ } ) )
-		{
-			## Attach the attribute to the control
-			$self->setAttribute( $_, $$attributes{ $_ } );
-		}
-	}
-	
-	return;	
-}
 
 ##==================================================================##
 ##  End of Code                                                     ##
@@ -185,9 +196,11 @@ XML::XForms::Generator::UserInterface
 
  use XML::XForms::Generator;
 
- my $ui = xforms_group( { model => 'default' },
-                        { caption => 'Address' },
-                        @address_controls_and_markup );
+ my $ui = xforms_group( {},
+ 					    [ qq|label|,
+						  {},
+						  qq|Sample Group| ],
+                        @controls );
 
 =head1 DESCRIPTION
 
@@ -201,7 +214,7 @@ listed further down in this document under the METHODS section.
 
 =head1 METHODS
 
-No methods othen then the inherited methods of XML::LibXML.
+See the code.  Not documented yet.
 
 =head1 AUTHOR
 
@@ -219,6 +232,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 =head1 COPYRIGHT AND LICENSE
 
 Copyright (c) 2002 D. Hageman (Dracken Technologies).
+
 All rights reserved.
 
 This program is free software; you can redistribute it and/or modify 

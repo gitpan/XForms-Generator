@@ -27,36 +27,32 @@ use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.5.1";
+our $VERSION = "0.61";
 
-no strict "refs";
+no strict 'refs';
 
-## Loop through the model elements and build convience functions for them.
-foreach my $action ( keys( %XFORMS_ACTION ) )
+foreach my $action ( @XFORMS_ACTION )
 {
-	## Add the name of the action to be exported.
-	Exporter::export_tags( "xforms_action_" . $action );
-	
-	## Create the closure ... add it to the symbol table.
-	*{ "xforms_action_" .  $action } = sub {
+	## We need to temporarily remove the namespace prefix.
+	$action =~ s/^xforms://g;
 
-		## Pull in the parameters for the action.
-		my %params = @_;
+	Exporter::export_tags( "xforms_$action" );
 
-		my $self = XML::XForms::Generator::Action->new( __type__ => $action );
+	*{ "xforms_$action" } = sub {
 
-		## Append the appropriate attributes of the action.
-		$self->_set_attributes( \%params );
+		my( $attributes, @children ) = @_;
 
-		## Finally set the namespace on the action.
-		$self->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
-	
-		return( $self );
-	};	
+		my $node = XML::XForms::Generator::Action->new( $action );
+
+		__xforms_attribute( $node, $attributes );
+		__xforms_children( $node, @children );
+
+		return( $node );
+	};
 }
 
-use strict "refs";
-				
+use strict 'refs';
+
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##
 ##==================================================================##
@@ -81,6 +77,8 @@ sub new
 	my $class = ref( $type ) || $type;
 	## Bless the class for it is good [tm].
 	bless( $self, $class );
+	## We need to set our namespace on our model element and activate it.
+ 	$self->setNamespace( $XFORMS_NAMESPACE{xforms}, "xforms", 1 );
 	## Send it back to the caller all happy like.
 	return( $self );
 }
@@ -100,6 +98,83 @@ sub DESTROY
 ##  Method(s)                                                       ##
 ##==================================================================##
 
+no strict 'refs';
+
+foreach my $element ( @XFORMS_ACTION )
+{
+	## We need to temporarily remove the namespace prefix for our work.
+	$element =~ s/^xforms://g;
+
+##----------------------------------------------##
+##  appendCHILDENAME                            ##
+##----------------------------------------------##
+##  Method generation for the common child      ##
+##  elements of controls.                       ##
+##----------------------------------------------##
+	*{ "append" . ucfirst( $element ) } = sub {
+
+		my( $self, $attributes, @children ) = @_;
+
+		## We need to determine what type of control we are working with.
+		my $type = $self->nodeName;
+
+		## We set a status bit to false indicating that at the momment we
+		## don't know if this particular control has the potential of
+		## having the child element in question attached to it.
+		my $status = 0;
+
+		## Loop through all the potential child elements looking for it.
+		foreach( @{ $XFORMS_SCHEMA{ $type }->[3] },
+				 @{ $XFORMS_SCHEMA{ $type }->[4] } )
+		{
+			## When we find it, make sure we change our status bit.
+			if( $_ eq "$element" )
+			{
+				$status = 1;
+			}
+		}
+
+		if( $status )
+		{
+			## If status is true, then proceed to build and append the 
+			## child element.
+			my $node = XML::LibXML::Element->new( $element );
+
+			$self->appendChild( $node );
+
+			$node->setNamespace( $XFORMS_NAMESPACE{xforms}, "xforms", 1 );
+
+			__xforms_attribute( $node, $attributes );
+			__xforms_children( $node, @children );
+	
+			return( $node );
+		}
+		else
+		{
+			croak( qq|Error: $type control does not have the ability to have |,
+				   qq|a $element child element| );
+		}
+	};
+
+##----------------------------------------------##
+##  getCHILDENAME                               ##
+##----------------------------------------------##
+##  Method for retrieval of the control child   ##
+##  elements.                                   ##
+##----------------------------------------------##
+	*{ "get" . ucfirst( $element ) } = sub {
+
+		my $self = shift;
+
+		my @nodes = 
+			$self->getElementsByTagNameNS( $XFORMS_NAMESPACE{ 'xforms' },
+										   $element );
+
+		return( @nodes );
+	};
+}
+
+use strict 'refs';
 ##==================================================================##
 ##  Function(s)                                                     ##
 ##==================================================================##
@@ -107,43 +182,6 @@ sub DESTROY
 ##==================================================================##
 ##  Internal Function(s)                                            ##
 ##==================================================================##
-
-##----------------------------------------------##
-##  _set_attributes                             ##
-##----------------------------------------------##
-##  Convience function in which you can set     ##
-##  name/value attribute pairs for an action    ##
-##  quickly.                                    ##
-##----------------------------------------------##
-sub _set_attributes
-{
-	my( $self, $attributes ) = @_;
-
-	foreach( @{ $XFORMS_ACTION{ $self->localname } }, "ev:event" )
-	{
-		## Events are special casses as we can do extra checking on them.
-		if( ( $_ eq "ev:event" ) && ( defined( $$attributes{ "ev:event" } ) ) )
-		{
-			## Look to see if the event actually exists.
-			if( exists( $XFORMS_EVENT{ $$attributes{ $_ } } ) )
-			{
-				## Attach the attribute like we normally do.
-				$self->setAttribute( $_, $$attributes{ $_ } );
-				## Delete it from the attribute listing.
-				delete( $$attributes{ $_ } );
-			}		
-		}
-		elsif( defined( $$attributes{ $_ } ) )
-		{
-			## Attach the attribute to the action node.
-			$self->setAttribute( $_, $$attributes{ $_ } );
-			## Delete it from the attribute listing.
-			delete( $$attributes{ $_ } );
-		}
-	}
-
-	return;
-}
 
 ##==================================================================##
 ##  End of Code                                                     ##
@@ -170,24 +208,20 @@ The XML::XForms::Generator::Action package is an implementation of the
 action part of the XForms specification.
 
 It is implemented with a set of convience functions that have the prefix
-'xforms_action_' followed by the name of the action with the first letter
-capitalized.
+'xforms_' followed by the name of the action.
 
 =head1 XFORMS ACTIONS
 
  dispatch        - 
- refresh         -
+ rebuild         -
  recalculate     -
- setFocus        -
- loadURI         -
- setValue        -
- submitInstance  -
- resetInstance   -
- setRepeatCursor -
- insert          - 
- delete          -
- toggle          -
- script          -
+ refresh         -
+ revalidate      -
+ load            -
+ setfocus        -
+ setvalue        -
+ send            -
+ reset           -
  message         -
 
 =head1 AUTHOR
@@ -206,6 +240,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 =head1 COPYRIGHT AND LICENSE
 
 Copyright (c) 2002 D. Hageman (Dracken Technologies).
+
 All rights reserved.
 
 This program is free software; you can redistribute it and/or modify 

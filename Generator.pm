@@ -30,7 +30,7 @@ use warnings;
 	'XML::XForms::Generator::UserInterface'		=>	[], 
 );
 
-our $VERSION = "0.5.1";
+our $VERSION = "0.61";
 
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##
@@ -70,8 +70,7 @@ XML::XForms::Generator
 =head1 DESCRIPTION
 
 XForms is a XML::LibXML DOM wrapper to ease the creation of XML that is 
-complaint with the schema of the W3's XForms last call working draft 
-specification.
+complaint with the schema of the W3's XForms candidate recommendation.
 
 The XForms webpage is located at: http://www.w3.org/MarkUp/Forms/
 
@@ -91,6 +90,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 =head1 COPYRIGHT AND LICENSE
 
 Copyright (c) 2002 D. Hageman (Dracken Technologies).
+
 All rights reserved.
 
 This program is free software; you can redistribute it and/or modify 
