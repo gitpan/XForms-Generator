@@ -1,7 +1,7 @@
-package XML::XForms::Generator;
+package XML::XForms::Generator::Extension;
 ######################################################################
 ##                                                                  ##
-##  Package:  Generator.pm                                          ##
+##  Package:  Extension.pm                                          ##
 ##  Author:   D. Hageman <dhageman@dracken.com>                     ##
 ##                                                                  ##
 ##  Description:                                                    ##
@@ -16,22 +16,19 @@ package XML::XForms::Generator;
 ##==================================================================##
 
 require 5.006;
-require Exporter::Cluster;
+require Exporter;
 
 use strict;
 use warnings;
 
-@XML::XForms::Generator::ISA = qw( Exporter::Cluster );
+use Carp;
+use XML::LibXML;
 
-%XML::XForms::Generator::EXPORT_CLUSTER = ( 
-	'XML::XForms::Generator::Action'			=>	[],
-	'XML::XForms::Generator::Control'			=>	[],
-	'XML::XForms::Generator::Extension'			=>	[], 
-	'XML::XForms::Generator::Model'				=>	[], 
-	'XML::XForms::Generator::UserInterface'		=>	[], 
-);
+our @ISA = qw( Exporter );
 
 our $VERSION = "0.70";
+
+our @EXPORT = qw( xforms_extension_html );
 
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##
@@ -50,6 +47,39 @@ our $VERSION = "0.70";
 ##
 
 ##==================================================================##
+##  Function(s)                                                     ##
+##==================================================================##
+
+##
+##  None.
+##
+
+##==================================================================##
+##  Internal Function(s)                                            ##
+##==================================================================##
+
+##----------------------------------------------##
+##  xforms_extension_html                       ##
+##----------------------------------------------##
+##  Generates a tag to be appended to the       ##
+##  <extension> tag for backwards compatibility ##
+##  with HTML.                                  ##
+##----------------------------------------------##
+sub xforms_extension_html
+{
+	my $attributes = shift;
+
+	my $html = XML::LibXML::Element->new( "html" );
+
+	foreach( keys( %{ $attributes } ) )
+	{
+		$html->setAttribute( $_, $attributes->{$_} );
+	}
+
+	return( $html );
+}
+
+##==================================================================##
 ##  End of Code                                                     ##
 ##==================================================================##
 1;
@@ -62,18 +92,29 @@ __END__
 
 =head1 NAME
 
-XML::XForms::Generator
+XML::XForms::Generator::Extension
 
 =head1 SYNOPSIS
 
- use XML::XForms::Generator;
+ use XML::XForms::Generator::Extension;
 
 =head1 DESCRIPTION
 
-XForms is a XML::LibXML DOM wrapper to ease the creation of XML that is 
-complaint with the schema of the W3's XForms candidate recommendation.
+This module provides convience methods to the most common extension 
+tagsets to the XForms standard.
 
-The XForms webpage is located at: http://www.w3.org/MarkUp/Forms/
+=head1 FUNCTIONS
+
+=over 4
+
+=item xforms_extension_html
+
+This function will create an E<lt>htmlE<gt> tag that can be embeded into
+the E<lt>xforms:extensionE<gt> element to specify attributes of HTML
+form tags that are missing from the XForms specification.  This is mainly
+used to keep backward compatiblity with older systems.
+
+=back
 
 =head1 AUTHOR
 
@@ -81,6 +122,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 
 =head1 SEE ALSO
 
+ XML::XForms::Generator
  XML::XForms::Generator::Action
  XML::XForms::Generator::Control
  XML::XForms::Generator::Model

@@ -15,7 +15,7 @@ package XML::XForms::Generator::UserInterface;
 ##  Libraries and Variables                                         ##
 ##==================================================================##
 
-require 5.6.0;
+require 5.006;
 require Exporter;
 
 use strict;
@@ -27,7 +27,9 @@ use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.61";
+our @EXPORT = qw();
+
+our $VERSION = "0.70";
 
 no strict 'refs';
 
@@ -37,7 +39,10 @@ foreach my $userinterface ( @XFORMS_USERINTERFACE )
 	## work here.
 	$userinterface =~ s/^xforms://g;
 
-    Exporter::export_tags( "xforms_$userinterface" );
+	## Can't use the below function - due to screwy logic it will
+	## throw warnings.  Bah!
+	#Exporter::export_tags( "xforms_$userinterface" );
+	push( @EXPORT, "xforms_$userinterface" );
 	
 	*{ "xforms_$userinterface" } = sub {
 
@@ -231,7 +236,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2002 D. Hageman (Dracken Technologies).
+Copyright (c) 2002-2004 D. Hageman (Dracken Technologies).
 
 All rights reserved.
 

@@ -7,7 +7,7 @@
   <!ELEMENT xforms:model ANY>
   <!ELEMENT xforms:group ANY>
 ]>
-<html xmlns:xforms="http://www.w3.org/2002/01/xforms">
+<html xmlns:xforms="http://www.w3.org/2002/xforms/cr">
   <head>
 	  <link rel="stylesheet" type="text/css" href="xforms.css"/>
 	  <style type="text/css">

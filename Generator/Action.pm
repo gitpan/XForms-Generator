@@ -15,7 +15,7 @@ package XML::XForms::Generator::Action;
 ##  Libraries and Variables                                         ##
 ##==================================================================##
 
-require 5.6.0;
+require 5.006;
 require Exporter;
 
 use strict;
@@ -27,7 +27,9 @@ use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.61";
+our @EXPORT = qw();
+
+our $VERSION = "0.70";
 
 no strict 'refs';
 
@@ -36,8 +38,11 @@ foreach my $action ( @XFORMS_ACTION )
 	## We need to temporarily remove the namespace prefix.
 	$action =~ s/^xforms://g;
 
-	Exporter::export_tags( "xforms_$action" );
-
+	## I prefer the below function, but it seems that Exporter
+	## will throw warnings whenever I use it.
+	#Exporter::export_tags( "xforms_$action" );
+	push( @EXPORT, "xforms_$action" );
+	
 	*{ "xforms_$action" } = sub {
 
 		my( $attributes, @children ) = @_;
@@ -239,7 +244,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2002 D. Hageman (Dracken Technologies).
+Copyright (c) 2002-2004 D. Hageman (Dracken Technologies).
 
 All rights reserved.
 

@@ -15,7 +15,7 @@ package XML::XForms::Generator::Model;
 ##  Libraries and Variables                                         ##
 ##==================================================================##
 
-require 5.6.0;
+require 5.006;
 require Exporter;
 
 use strict;
@@ -29,7 +29,7 @@ our @ISA = qw( Exporter XML::LibXML::Element );
 
 our @EXPORT = qw( xforms_model );
 
-our $VERSION = "0.61";
+our $VERSION = "0.70";
 
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##
@@ -326,7 +326,15 @@ sub setInstanceData ($$$)
 	}
 
 	## Check to see if the value is text or a node.
-	if( ( ref( $value ) ) && ( $value->isa( "XML::LibXML::Node" ) ) )
+	if( ( ref( $value ) ) && 
+		( ref( $value ) ne "ARRAY" ) &&
+		( ref( $value ) ne "HASH" ) &&
+		( ref( $value ) ne "SCALAR" ) &&
+		( ref( $value ) ne "CODE" ) &&
+		( ref( $value ) ne "REF" ) &&
+		( ref( $value ) ne "LVALUE" ) &&
+		( ref( $value ) ne "GLOB" ) &&
+		( $value->isa( "XML::LibXML::Node" ) ) )
 	{
 		$instance->appendChild( $value );
 	}
@@ -476,7 +484,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2002 D. Hageman (Dracken Technologies).
+Copyright (c) 2002-2004 D. Hageman (Dracken Technologies).
 
 All rights reserved.
 

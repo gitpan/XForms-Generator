@@ -15,7 +15,7 @@ package XML::XForms::Generator::Common;
 ##  Libraries and Variables                                         ##
 ##==================================================================##
 
-require 5.6.0;
+require 5.006;
 require Exporter;
 
 use strict;
@@ -26,7 +26,7 @@ use XML::LibXML;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.61";
+our $VERSION = "0.70";
 
 our @EXPORT = qw(	__xforms_attribute
 					__xforms_children
@@ -45,7 +45,8 @@ our @EXPORT = qw(	__xforms_attribute
 
 ## Potential namespaces used exclusively by the XForms generator.
 our %XFORMS_NAMESPACE = (
-	"xforms"	=>	"http://www.w3.org/2002/01/xforms",
+	"xforms"	=>	"http://www.w3.org/2002/xforms/cr",
+	"xlink"		=>	"http://www.w3.org/1999/xlink",
 	"xsd"		=>	"http://www.w3.org/2001/XMLSchema",
 	"xsi"		=>	"http://www.w3.org/2000/10/XMLSchema-instance",
 	"ev"		=>	"http://www.w3.org/2001/xml-events" );
@@ -72,7 +73,7 @@ our @XFORMS_MODEL_ELEMENT = qw( xforms:bind xforms:extension
 our @XFORMS_CONTROL = qw( xforms:input xforms:secret xforms:textarea 
 						  xforms:output xforms:upload xforms:range
 						  xforms:trigger xforms:submit xforms:select 
-						  xforms:select1 );
+						  xforms:select1 xforms:item );
 
 ## XForms Control Child Elements
 our @XFORMS_CONTROL_ELEMENT = qw( xforms:alert xforms:choices xforms:filename 
@@ -633,7 +634,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2002 D. Hageman (Dracken Technologies).
+Copyright (c) 2002-2004 D. Hageman (Dracken Technologies).
 
 All rights reserved.
 

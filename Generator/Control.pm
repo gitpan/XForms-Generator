@@ -15,7 +15,7 @@ package XML::XForms::Generator::Control;
 ##  Libraries and Variables                                         ##
 ##==================================================================##
 
-require 5.6.0;
+require 5.006;
 require Exporter;
 
 use strict;
@@ -27,7 +27,9 @@ use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.61";
+our @EXPORT = qw();
+
+our $VERSION = "0.70";
 
 no strict 'refs';
 
@@ -36,8 +38,11 @@ foreach my $control ( @XFORMS_CONTROL )
 	## We need to temporarily remove the namespace prefix.
 	$control =~ s/^xforms://g;
 
-	Exporter::export_tags( "xforms_$control" );
-
+	## I really hate the fact that I have to use the push function
+	## instead of the Exporter.  Oh well.
+	#Exporter::export_tags( "xforms_$control" );
+	push( @EXPORT, "xforms_$control" );
+	
 	*{ "xforms_$control" } = sub {
 
 		my( $attributes, @children ) = @_;
@@ -172,6 +177,61 @@ foreach my $element ( @XFORMS_CONTROL_ELEMENT )
 
 		return( @nodes );
 	};
+
+##----------------------------------------------##
+##  prependCHILDENAME                           ##
+##----------------------------------------------##
+##  Method generation for the common child      ##
+##  elements of controls.                       ##
+##----------------------------------------------##
+	*{ "prepend" . ucfirst( $element ) } = sub {
+
+		my( $self, $attributes, @children ) = @_;
+
+		## We need to determine what type of control we are working with.
+		my $type = $self->nodeName;
+
+		## We set a status bit to false indicating that at the momment we
+		## don't know if this particular control has the potential of
+		## having the child element in question attached to it.
+		my $status = 0;
+
+		## Loop through all the potential child elements looking for it.
+		foreach( @{ $XFORMS_SCHEMA{ $type }->[3] },
+				 @{ $XFORMS_SCHEMA{ $type }->[4] } )
+		{
+			## When we find it, make sure we change our status bit.
+			if( ( $_ eq "$element" ) || ( $_ eq "xforms:$element" ) )
+			{
+				$status = 1;
+			}
+		}
+
+		if( $status )
+		{
+			## If status is true, then proceed to build and append the 
+			## child element.
+			my $node = XML::LibXML::Element->new( $element );
+
+			bless( $node, __PACKAGE__ );
+
+			my $first_node = $self->firstChild;
+
+			$self->insertBefore( $node, $first_node );
+
+			$node->setNamespace( $XFORMS_NAMESPACE{xforms}, "xforms", 1 );
+
+			__xforms_attribute( $node, $attributes );
+			__xforms_children( $node, @children );
+	
+			return( $node );
+		}
+		else
+		{
+			croak( qq|Error: $type control does not have the ability to have |,
+				   qq|a $element child element| );
+		}
+	};
 }
 
 use strict 'refs';
@@ -273,7 +333,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2002 D. Hageman (Dracken Technologies).
+Copyright (c) 2002-2004 D. Hageman (Dracken Technologies).
 
 All rights reserved.
 

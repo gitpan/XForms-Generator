@@ -20,4 +20,4 @@ isa_ok( $model, "XML::LibXML::Node" );
 my $control = xforms_input( {},
 							[ "label", {}, "Label" ] );
 
-ok( $control->toString() eq qq|<xforms:input xmlns:xforms=\"http://www.w3.org/2002/01/xforms\"><xforms:label>Label</xforms:label></xforms:input>|, "String" );
+ok( $control->toString() eq qq|<xforms:input xmlns:xforms="http://www.w3.org/2002/xforms/cr"><xforms:label>Label</xforms:label></xforms:input>|, "String" );

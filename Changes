@@ -1,6 +1,21 @@
 XML::XForms::Generator Revision History
 =======================================
 
+0.70 Sat Oct 23 22:53:31 2004
+	- Added a prepend{CHILD} function to compliment append{CHILD}.  I imagine
+	  only concrete sequential people will care about this.
+	- Tweaked some tests.
+	- Updated documentation.
+
+0.65 Sun Jun 16 16:02:44 2003
+	- Added XML::XForms::Generator::Extension.
+	- Added more testing.
+
+0.62 Thu Mar 20 21:56:16 2003
+	- Minor changes to make things a little more compliant with the way
+	  perl wants things in terms of requires, etc.
+	- Minor change to work around some screwy logic in Exporter.
+
 0.61 Tue Nov 26 18:22:26 2002
 	- Updated XML::XForms::Generator to the latest XForms specification.
 	- Updated documentation.
