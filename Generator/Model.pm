@@ -29,13 +29,13 @@ our @ISA = qw( Exporter XML::LibXML::Element );
 
 our @EXPORT = qw( xforms_model );
 
-$XML::XForms::Generator::Model::VERSION = "0.4.0";
+our $VERSION = "0.5.0";
+
+no strict "refs";
 
 ## Loop through the model elements and build convience functions for them.
 foreach my $element ( keys( %XFORMS_MODEL_CHILDREN ) )
 {
-	no strict "refs";
-	
 	## Create the closure ... add it to the symbol table.
 	*{ "set" . ucfirst( $element ) } = sub {
 
@@ -77,9 +77,9 @@ foreach my $element ( keys( %XFORMS_MODEL_CHILDREN ) )
 
 		return( $node );
 	};
-	
-	use strict "refs";
 }
+
+use strict "refs";
 				
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##
@@ -318,12 +318,13 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
  XML::XForms::Generator
  XML::XForms::Generator::Action
  XML::XForms::Generator::Control
+ XML::XForms::Generator::UserInterface
  XML::LibXML
  XML::LibXML::DOM
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2000-2001 D. Hageman (Dracken Technologies).
+Copyright (c) 2002 D. Hageman (Dracken Technologies).
 All rights reserved.
 
 This program is free software; you can redistribute it and/or modify 

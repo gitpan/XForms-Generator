@@ -26,7 +26,7 @@ use XML::LibXML;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-$XML::XForms::Generator::Common::VERSION = "0.4.0";
+our $VERSION = "0.5.0";
 
 our @EXPORT = qw( _append_array_data
 				  _ensure_xpath
@@ -39,7 +39,8 @@ our @EXPORT = qw( _append_array_data
 				  %XFORMS_CONTROL_CHILDREN
 				  %XFORMS_MODEL_CHILDREN
 				  $XFORMS_NSPREFIX
-				  $XFORMS_NSURI );
+				  $XFORMS_NSURI 
+				  %XFORMS_USER_INTERFACE );
 
 ## XForms Namespace Variables
 our $XFORMS_NSPREFIX = "xforms";
@@ -148,6 +149,14 @@ our %XFORMS_MODEL_CHILDREN = (
 						  'omitXMLDeclaration', 'standalone', 
 						  'CDATASectionElements', 'replace' ],
 	'privacy'		=>	[ 'href' ],
+);
+
+## XForms User Interface Elements
+our %XFORMS_USER_INTERFACE = (
+	'group'		=>	[ @CM_ATTR, @SN_ATTR ],
+	'switch'	=>	[ @CM_ATTR ],
+	'case'		=>	[ 'selected' ],
+	'repeat'	=>	[ @CM_ATTR, @NS_ATTR, 'startIndex', 'number' ],
 );
 
 ##==================================================================##
@@ -302,13 +311,16 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 =head1 SEE ALSO
 
  XML::XForms::Generator
+ XML::XForms::Generator::Action
  XML::XForms::Generator::Control
+ XML::XForms::Generator::Model
+ XML::XForms::Generator::UserInterface
  XML::LibXML
  XML::LibXML::DOM
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2000-2001 D. Hageman (Dracken Technologies).
+Copyright (c) 2002 D. Hageman (Dracken Technologies).
 All rights reserved.
 
 This program is free software; you can redistribute it and/or modify 

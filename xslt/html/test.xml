@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding='ISO-8859-1'?>
+<!-- $Id: test.xml,v 1.5 2002/08/08 23:17:02 rick Exp $ -->
+<html xmlns:xforms="http://www.w3.org/2002/01/xforms">
+<head>
+<link rel="stylesheet" type="text/css" href="xforms.css"/>
+<style type='text/css'>
+  form#model2 {
+      border: thin solid;
+      padding: .5em;
+  }
+</style>
+<title>Xforms Test</title>
+  <xforms:model id='default'>
+    <xforms:submitInfo action="http://www.test.com/cgi-bin/test.cgi" 
+					   method="POST"/>
+    <xforms:instance>
+<text>
+      <text-input>mytext</text-input>
+      <secret>mypass</secret>
+</text>
+      <textarea>1 mutltiline text data
+2 in the textarea</textarea>
+      <output>this is the output</output>
+      <file/>
+      <selectOne>2</selectOne>
+      <selectMany>2 3</selectMany>
+      <itemset-value>v2</itemset-value>
+      <itemset>
+        <item value="v1" caption="value 1"/>
+        <item value="v2" caption="value 2"/>
+        <item value="v3" caption="value 3"/>
+      </itemset>
+    </xforms:instance>
+ </xforms:model>
+
+<xforms:model id='model2'>
+   <xforms:submitInfo action="http://www.test.com/cgi-bin/test2.cgi" 
+                      encoding="application/x-www-urlencoded"
+					  method="POST"/>
+    <xforms:instance>
+     <input>model2</input>
+     <outer>
+      <inner>
+        <bound-data>bound</bound-data>
+        <bound-set>
+        <item value="v1" caption="bound 1"/>
+        <item value="v2" caption="bound 2"/>
+        <item value="v3" caption="bound 3"/>
+        </bound-set>
+      </inner>
+     </outer>
+    </xforms:instance>
+    <xforms:bind ref='outer' id='outer'>
+      <xforms:bind ref='inner' id='inner'>
+        <xforms:bind ref='bound-data' id='bound-input'/>
+        <xforms:bind nodeset='bound-set/item' id='bound-set'/>
+      </xforms:bind>
+    </xforms:bind>
+</xforms:model>
+</head>
+<body>
+<xforms:group>
+<!-- no-display groups do not generate divs.
+     can be used for context grouping as below -->
+<xforms:group class='no-display' ref='text'>
+  <xforms:input class="text-input" ref="text-input">
+    <xforms:caption>text</xforms:caption>
+  </xforms:input>
+  <xforms:secret class="text-input" ref="secret">
+    <xforms:caption>password</xforms:caption>
+  </xforms:secret>
+</xforms:group>
+  <xforms:textarea class="text-input" ref="textarea">
+    <xforms:caption>textarea</xforms:caption>
+  </xforms:textarea> 
+<div class='input'>
+<span class='caption'>Some output</span>
+<xforms:output ref="output"/>
+</div>
+  <xforms:upload accessKey="u" media-type="text/html" ref="file">
+    <xforms:caption>file</xforms:caption>
+  </xforms:upload>
+<div class='input'>
+<span class='caption'>Some buttons</span>
+<span class='input'>
+  <xforms:button xmlns:xforms="http://www.w3.org/2002/01/xforms" class="button" ref="button">
+    <xforms:help>
+Click on the pretty button!
+  </xforms:help>
+    <xforms:caption>
+This is a button!
+  </xforms:caption>
+  </xforms:button>&#160;
+  <xforms:submit submitInfo="">
+    <xforms:caption>Save</xforms:caption>
+  </xforms:submit>
+</span>
+</div>
+
+  <xforms:selectOne ref="selectOne" selectUI="listbox">
+    <xforms:caption>list</xforms:caption>
+    <xforms:item>
+      <xforms:caption>one</xforms:caption>
+      <xforms:value>1</xforms:value>
+    </xforms:item>
+    <xforms:item>
+      <xforms:caption>two</xforms:caption>
+      <xforms:value>2</xforms:value>
+    </xforms:item>
+    <xforms:item>
+      <xforms:caption>three</xforms:caption>
+      <xforms:value>3</xforms:value>
+    </xforms:item>
+  </xforms:selectOne>
+<div class='input'>
+<span class='caption'/><xforms:group class="group">
+    <xforms:hint>Group Here!</xforms:hint>
+    <xforms:caption>Group</xforms:caption>
+    <xforms:selectOne ref="selectOne" selectUI="radio">
+      <xforms:caption>radio</xforms:caption>
+      <xforms:item>
+        <xforms:caption>one</xforms:caption>
+        <xforms:value>1</xforms:value>
+      </xforms:item>
+      <xforms:item>
+        <xforms:caption>two</xforms:caption>
+        <xforms:value>2</xforms:value>
+      </xforms:item>
+      <xforms:item>
+        <xforms:caption>three</xforms:caption>
+        <xforms:value>3</xforms:value>
+      </xforms:item>
+    </xforms:selectOne>
+    <xforms:selectMany ref="selectMany" selectUI="checkbox">
+      <xforms:caption>multiple</xforms:caption>
+      <xforms:item>
+        <xforms:caption>one</xforms:caption>
+        <xforms:value>1</xforms:value>
+      </xforms:item>
+      <xforms:item>
+        <xforms:caption>two</xforms:caption>
+        <xforms:value>2</xforms:value>
+      </xforms:item>
+      <xforms:item>
+        <xforms:caption>three</xforms:caption>
+        <xforms:value>3</xforms:value>
+      </xforms:item>
+    </xforms:selectMany>
+  </xforms:group>
+</div>
+
+  <xforms:selectMany ref="selectMany" selectUI="listbox">
+    <xforms:caption>multiple</xforms:caption>
+    <xforms:choices>
+      <xforms:caption>Group 1</xforms:caption>
+      <xforms:item>
+        <xforms:caption>one</xforms:caption>
+        <xforms:value>1</xforms:value>
+      </xforms:item>
+      <xforms:item>
+        <xforms:caption>two</xforms:caption>
+        <xforms:value>2</xforms:value>
+      </xforms:item>
+    </xforms:choices>
+    <xforms:choices>
+      <xforms:caption>Group 2</xforms:caption>
+      <xforms:hint>Not many here...</xforms:hint>
+      <xforms:item>
+        <xforms:caption>three</xforms:caption>
+        <xforms:value>3</xforms:value>
+      </xforms:item>
+    </xforms:choices>
+  </xforms:selectMany>
+  <xforms:selectOne ref="selectOne" selectUI="menu">
+    <xforms:caption>Menu</xforms:caption>
+    <xforms:item>
+      <xforms:caption>one</xforms:caption>
+      <xforms:value>1</xforms:value>
+    </xforms:item>
+    <xforms:item>
+      <xforms:caption>two</xforms:caption>
+      <xforms:value>2</xforms:value>
+    </xforms:item>
+    <xforms:item>
+      <xforms:caption>three</xforms:caption>
+      <xforms:value>3</xforms:value>
+    </xforms:item>
+  </xforms:selectOne>
+  <xforms:selectOne ref="itemset-value" selectUI="listbox">
+    <xforms:caption>dynamic list</xforms:caption>
+    <xforms:itemset nodeset="itemset/item">
+      <xforms:caption ref="@caption"/>
+      <xforms:value ref="@value"/>
+    </xforms:itemset>
+  </xforms:selectOne>
+</xforms:group>
+
+<xforms:group model='model2'>
+  <xforms:input ref='input'>
+   <xforms:caption>model 2 input</xforms:caption>
+  </xforms:input>
+  <xforms:input bind='bound-input'>
+    <xforms:caption>bound input</xforms:caption>
+  </xforms:input>
+  <xforms:selectOne ref="itemset-value" selectUI="listbox" model='default'>
+    <xforms:caption>bound dynamic list</xforms:caption>
+    <xforms:itemset bind="bound-set">
+      <xforms:caption ref="@caption"/>
+      <xforms:value ref="@value"/>
+    </xforms:itemset>
+  </xforms:selectOne>
+  <xforms:submit submitInfo="">
+    <xforms:caption>Save Model 2</xforms:caption>
+  </xforms:submit>
+</xforms:group>
+
+</body>
+</html>

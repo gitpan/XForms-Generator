@@ -27,7 +27,7 @@ use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-$XML::XForms::Generator::Control::VERSION = "0.4.0";
+our $VERSION = "0.5.0";
 
 no strict "refs";
 
@@ -42,19 +42,20 @@ foreach my $control ( keys( %XFORMS_CONTROL ) )
 	*{ "xforms_$control" } = sub {
 		
 		## Pull in the parameters.
-		my %params = @_;
+		my $attributes = shift;
+		my %children = @_;
 		
 		## Generate a the new control.
-		my $self = XML::XForms::Generator::Control->new( __type__ => $control );
+		my $self = XML::XForms::Generator::Control->new( $control );
+		
+		## Make the namespace all happy and stuff.
+		$self->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
 		
 		## Append the appropriate attributes of the control.
-		$self->_set_attributes( \%params );
+		$self->_set_attributes( $attributes );
 
 		## Append the the children of the control.
-		$self->_append_children( \%params );
-		
-		## Finally make it namespace happy.
-		$self->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
+		$self->_append_children( \%children );
 		
 		return( $self );
 	};
@@ -68,9 +69,6 @@ foreach my $child ( keys( %XFORMS_CONTROL_CHILDREN ) )
 	*{ "set" . ucfirst( $child ) } = sub {
 	
 		my( $self, $attribute, @data ) = @_;
-
-		## Determine the name of the XForms control.
-		my $control = $self->nodeName;
 
 		## See if we can find the child element we are operating on ...
 		my( $node ) = $self->getChildrenByTagName( $child );
@@ -131,13 +129,11 @@ sub new
 {
 	## Pull in what type of an object we will be.
 	my $type = shift;
-	## Pull in the parameters ...
-	my %params = @_;
+	## Grab the name of the control.
+	my $control = shift;
 	## The object we are generating is going to be a child class of
 	## XML::LibXML's DOM objects.
-	my $self = XML::LibXML::Element->new( $params{__type__} );
-	## We need to make sure type doesn't go past this point.
-	delete( $params{__type__} );
+	my $self = XML::LibXML::Element->new( $control );
 	## Determine what exact class we will be blessing this instance into.
 	my $class = ref( $type ) || $type;
 	## Bless the class for it is good [tm].
@@ -211,7 +207,9 @@ sub _append_children
 	my( $self, $children ) = @_;
 
 	## Loop through all the common children of controls and attach them
-	## if they are available.
+	## if they are available.  We need to delete them from our hash 
+	## when we are done so we can ensure that we get the correct elements
+	## into our extension part.
 	foreach( qw( caption help hint alert action ) )
 	{
 		if( defined( $$children{ $_ } ) )
@@ -221,10 +219,30 @@ sub _append_children
 			$node->appendText( $$children{ $_ } );
 
 			$self->appendChild( $node );
+			
+			$node->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
 
 			delete( $$children{ $_ } );
 		}
 	}
+
+	## We have a special cases for controls.
+	if( $self->nodeName eq "item" )
+	{
+		if( defined( $$children{ 'value' } ) )
+		{
+			my $node = XML::LibXML::Element->new( 'value' );
+
+			$node->appendText( $$children{ 'value' } );
+
+			$self->appendChild( $node );
+		
+			$node->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
+
+			delete( $$children{ 'value' } );
+		}
+	}
+
 
 	## Anything left over at this point we can only assume are
 	## extension "children" nodes.
@@ -244,13 +262,20 @@ sub _append_children
 
 			## Attach the node to the control.
 			$self->appendChild( $extension );
+			
+			## Make the namespace all happy and stuff.
+			$extension->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
 		}
 		
+		## Build the node and add it under the extension section.
 		my $node = XML::LibXML::Element->new( $key );
 
 		$node->appendText( $value );
 		
 		$extension->appendChild( $node );
+		
+		## Make the namespace all happy and stuff.
+		$node->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
 	}
 
 	return;
@@ -266,17 +291,13 @@ sub _set_attributes
 {
 	my( $self, $attributes ) = @_;
 
-	my $control = $self->nodeName;
-	
-	foreach( @{ $XFORMS_CONTROL{ "xforms_$control" } } )
+	foreach( @{ $XFORMS_CONTROL{ $self->nodeName } } )
 	{
 		## If the attribute is defined, then go ahead and work with it.
 		if( defined( $$attributes{ $_ } ) )
 		{
 			## Attach the attribute to the control
 			$self->setAttribute( $_, $$attributes{ $_ } );
-			## Delete it from the attribute listing.
-			delete( $$attributes{ $_ } );
 		}
 	}
 	
@@ -292,10 +313,8 @@ sub _set_attributes
 sub _set_control_element_attributes
 {
 	my( $node, $attributes ) = @_;
-
-	my $name = $node->nodeName;
 	
-	foreach( @{ $XFORMS_CONTROL_CHILDREN{ $name } } )
+	foreach( @{ $XFORMS_CONTROL_CHILDREN{ $node->nodeName } } )
 	{
 		## If the attribute is defined, then go ahead and work with it.
 		if( defined( $$attributes{ $_ } ) )
@@ -335,9 +354,9 @@ XML::XForms::Generator::Control
 
 =head1 DESCRIPTION
 
-The XML::LibXML DOM wrapper the XML::XForms::Generator module provides is
-based on convience functions for quick creation of XForms controls.  These
-functions are named after the XForms control they create prefixed by 
+The XML::LibXML DOM wrapper provided by XML::XForms::Generator module 
+is based on convience functions for quick creation of XForms controls.  
+These functions are named after the XForms control they create prefixed by 
 'xforms_'.  The result of 'xforms_' convience functions is an object
 with all of the methods available to a standard XML::LibXML::Element
 along with all of the convience methods listed further down in this 
@@ -425,7 +444,7 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2000-2001 D. Hageman (Dracken Technologies).
+Copyright (c) 2002 D. Hageman (Dracken Technologies).
 All rights reserved.
 
 This program is free software; you can redistribute it and/or modify 

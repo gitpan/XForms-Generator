@@ -24,12 +24,13 @@ use warnings;
 @XML::XForms::Generator::ISA = qw( Exporter::Cluster );
 
 %XML::XForms::Generator::EXPORT_CLUSTER = ( 
-	'XML::XForms::Generator::Action'	=>	[],
-	'XML::XForms::Generator::Control'	=>	[],
-	'XML::XForms::Generator::Model'		=>	[], 
+	'XML::XForms::Generator::Action'			=>	[],
+	'XML::XForms::Generator::Control'			=>	[],
+	'XML::XForms::Generator::Model'				=>	[], 
+	'XML::XForms::Generator::UserInterface'		=>	[], 
 );
 
-$XML::XForms::Generator::VERSION = "0.4.0";
+our $VERSION = "0.5.0";
 
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##
@@ -62,6 +63,10 @@ __END__
 
 XML::XForms::Generator
 
+=head1 SYNOPSIS
+
+ use XML::XForms::Generator;
+
 =head1 DESCRIPTION
 
 XForms is a XML::LibXML DOM wrapper to ease the creation of XML that is 
@@ -76,14 +81,16 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 
 =head1 SEE ALSO
 
+ XML::XForms::Generator::Action
  XML::XForms::Generator::Control
  XML::XForms::Generator::Model
+ XML::XForms::Generator::UserInterface
  XML::LibXML
  XML::LibXML::DOM
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2000-2001 D. Hageman (Dracken Technologies).
+Copyright (c) 2002 D. Hageman (Dracken Technologies).
 All rights reserved.
 
 This program is free software; you can redistribute it and/or modify 

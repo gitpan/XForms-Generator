@@ -1,7 +1,7 @@
-package XML::XForms::Generator::Action;
+package XML::XForms::Generator::UserInterface;
 ######################################################################
 ##                                                                  ##
-##  Package:  Action.pm                                             ##
+##  Package:  UserInterface.pm                                      ##
 ##  Author:   D. Hageman <dhageman@dracken.com>                     ##
 ##                                                                  ##
 ##  Description:                                                    ##
@@ -31,32 +31,42 @@ our $VERSION = "0.5.0";
 
 no strict "refs";
 
-## Loop through the model elements and build convience functions for them.
-foreach my $action ( keys( %XFORMS_ACTION ) )
+## Loop through each element in the CONTROLS_ATTR hash and generate a
+## subroutine to match it.
+foreach my $uiobject ( keys( %XFORMS_USER_INTERFACE ) )
 {
-	## Add the name of the action to be exported.
-	Exporter::export_tags( "xforms_action_" . $action );
+	## Add the control name to be exported.
+	Exporter::export_tags( "xforms_$uiobject" );
 	
-	## Create the closure ... add it to the symbol table.
-	*{ "xforms_action_" .  $action } = sub {
-
-		## Pull in the parameters for the action.
-		my %params = @_;
-
-		my $self = XML::XForms::Generator::Action->new( __type__ => $action );
-
-		## Append the appropriate attributes of the action.
-		$self->_set_attributes( \%params );
-
-		## Finally set the namespace on the action.
+	## Create the closure ... add it to the symbol table
+	*{ "xforms_$uiobject" } = sub {
+		
+		## Pull in the parameters.
+		my $attributes = shift;
+		my $uichildren = shift;
+		my @children = @_;
+		
+		## Generate a the new control.
+		my $self = XML::XForms::Generator::UserInterface->new( $uiobject );
+		
+		## Add the namespace to the node.
 		$self->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
-	
+		
+		## Append the appropriate attributes of the control.
+		$self->_set_attributes( $attributes );
+
+		## Append the the children of the control.
+		$self->_append_children( $uichildren );
+		
+		## Stick any other data we have on the element.
+		$self->_append_array_data( @children );
+
 		return( $self );
-	};	
+	};
 }
 
 use strict "refs";
-				
+
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##
 ##==================================================================##
@@ -64,19 +74,17 @@ use strict "refs";
 ##----------------------------------------------##
 ##  new                                         ##
 ##----------------------------------------------##
-##  XForms::Action default contstructor.        ##
+##  UserInterface default contstructor.         ##
 ##----------------------------------------------##
 sub new
 {
 	## Pull in what type of an object we will be.
 	my $type = shift;
-	## Pull in any arguments provided to the constructor.
-	my %params = @_;
+	## Pull in the parameters ...
+	my $uiobject = shift;
 	## The object we are generating is going to be a child class of
 	## XML::LibXML's DOM objects.
-	my $self = XML::LibXML::Element->new( $params{__type__} );
-	## We need to clean up the parameter ...
-	delete( $params{__type__} );
+	my $self = XML::LibXML::Element->new( $uiobject );
 	## Determine what exact class we will be blessing this instance into.
 	my $class = ref( $type ) || $type;
 	## Bless the class for it is good [tm].
@@ -88,7 +96,7 @@ sub new
 ##----------------------------------------------##
 ##  DESTROY                                     ##
 ##----------------------------------------------##
-##  XForms::Action default deconstructor.       ##
+##  UserInterface default deconstructor.        ##
 ##----------------------------------------------##
 sub DESTROY
 {
@@ -101,48 +109,61 @@ sub DESTROY
 ##==================================================================##
 
 ##==================================================================##
-##  Function(s)                                                     ##
-##==================================================================##
-
-##==================================================================##
 ##  Internal Function(s)                                            ##
 ##==================================================================##
+
+##----------------------------------------------##
+##  _append_children                            ##
+##----------------------------------------------##
+##  Convience function in which one can set     ##
+##  common children quickly.                    ##
+##----------------------------------------------##
+sub _append_children
+{
+	my( $self, $children ) = @_;
+
+	## Right now only the group element has the capability of having a 
+	## caption.  This subroutine at the momment could be considered 
+	## overkill at the momment, but we use it to keep it easy to add
+	## features later.
+	if( $self->nodeName eq "group" )
+	{
+		if( defined( $$children{ 'caption' } ) )
+		{
+			my $node = XML::LibXML::Element->new( 'caption' );
+	
+			$node->appendText( $$children{ 'caption' } );
+
+			$self->appendChild( $node );
+			
+			$node->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
+		}
+	}
+
+	return;
+}
 
 ##----------------------------------------------##
 ##  _set_attributes                             ##
 ##----------------------------------------------##
 ##  Convience function in which you can set     ##
-##  name/value attribute pairs for an action    ##
-##  quickly.                                    ##
+##  name/value attribute pairs quickly.         ##
 ##----------------------------------------------##
 sub _set_attributes
 {
 	my( $self, $attributes ) = @_;
-
-	foreach( @{ $XFORMS_ACTION{ $self->nodeName } }, "ev:event" )
+	
+	foreach( @{ $XFORMS_USER_INTERFACE{ $self->nodeName } } )
 	{
-		## Events are special casses as we can do extra checking on them.
-		if( ( $_ eq "ev:event" ) && ( defined( $$attributes{ "ev:event" } ) ) )
+		## If the attribute is defined, then go ahead and work with it.
+		if( defined( $$attributes{ $_ } ) )
 		{
-			## Look to see if the event actually exists.
-			if( exists( $XFORMS_EVENT{ $$attributes{ $_ } } ) )
-			{
-				## Attach the attribute like we normally do.
-				$self->setAttribute( $_, $$attributes{ $_ } );
-				## Delete it from the attribute listing.
-				delete( $$attributes{ $_ } );
-			}		
-		}
-		elsif( defined( $$attributes{ $_ } ) )
-		{
-			## Attach the attribute to the action node.
+			## Attach the attribute to the control
 			$self->setAttribute( $_, $$attributes{ $_ } );
-			## Delete it from the attribute listing.
-			delete( $$attributes{ $_ } );
 		}
 	}
-
-	return;
+	
+	return;	
 }
 
 ##==================================================================##
@@ -158,37 +179,37 @@ __END__
 
 =head1 NAME
 
-XML::XForms::Generator::Action
+XML::XForms::Generator::UserInterface
 
 =head1 SYNOPSIS
 
- use XML::XForms::Generator::Action;
+ use XML::XForms::Generator;
+
+ my $ui = xforms_group( { model => 'default' },
+                        { caption => 'Address' },
+                        @address_controls_and_markup );
 
 =head1 DESCRIPTION
 
-The XML::XForms::Generator::Action package is an implementation of the 
-action part of the XForms specification.
+The XML::LibXML DOM wrapper provided by XML::XForms::Generator module
+is based on convience functions for quick creation of XForms user 
+interface elements.  These functions are named after the user interface
+element they create prefixed by 'xforms_'.  The result of 'xforms_'
+convience functions is an object with all of the methods available to
+a standard XML::LibXML::Element along with all of the convience methods
+listed further down in this document under the METHODS section.
 
-It is implemented with a set of convience functions that have the prefix
-'xforms_action_' followed by the name of the action with the first letter
-capitalized.
+=head1 METHODS
 
-=head1 XFORMS ACTIONS
+=over 4
 
- dispatch        - 
- refresh         -
- recalculate     -
- setFocus        -
- loadURI         -
- setValue        -
- submitInstance  -
- resetInstance   -
- setRepeatCursor -
- insert          - 
- delete          -
- toggle          -
- script          -
- message         -
+=item setInstanceData ( MODEL, BIND_REF, @DATA )
+
+This method takes a XML::XForms::Generator::Model object as its first
+argument, a very very basic XPath statement for the instance data location
+and finally it takes an array of XML::LibXML capable nodes and/or text.
+
+=back
 
 =head1 AUTHOR
 
@@ -197,9 +218,9 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 =head1 SEE ALSO
 
  XML::XForms::Generator
+ XML::XForms::Generator::Action
  XML::XForms::Generator::Control
- XML::XForms::Genertaor::Model
- XML::XForms::Genertaor::UserInterface
+ XML::XForms::Generator::Model
  XML::LibXML
  XML::LibXML::DOM
 

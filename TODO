@@ -4,3 +4,4 @@ XML::XForms::Generator TODO list
 *) Finish XSLT file for transforming XForms to HTML forms.
 *) Add more schema checking to the Action/Event code.
 *) Look for a better methodology for generating the XPath to instance data.
+*) Add some more examples of scripts and rendered code.
