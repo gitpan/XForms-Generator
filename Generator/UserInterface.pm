@@ -27,7 +27,7 @@ use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.5.0";
+our $VERSION = "0.5.1";
 
 no strict "refs";
 
@@ -126,7 +126,7 @@ sub _append_children
 	## caption.  This subroutine at the momment could be considered 
 	## overkill at the momment, but we use it to keep it easy to add
 	## features later.
-	if( $self->nodeName eq "group" )
+	if( $self->localname eq "group" )
 	{
 		if( defined( $$children{ 'caption' } ) )
 		{
@@ -153,7 +153,7 @@ sub _set_attributes
 {
 	my( $self, $attributes ) = @_;
 	
-	foreach( @{ $XFORMS_USER_INTERFACE{ $self->nodeName } } )
+	foreach( @{ $XFORMS_USER_INTERFACE{ $self->localname } } )
 	{
 		## If the attribute is defined, then go ahead and work with it.
 		if( defined( $$attributes{ $_ } ) )
@@ -201,15 +201,7 @@ listed further down in this document under the METHODS section.
 
 =head1 METHODS
 
-=over 4
-
-=item setInstanceData ( MODEL, BIND_REF, @DATA )
-
-This method takes a XML::XForms::Generator::Model object as its first
-argument, a very very basic XPath statement for the instance data location
-and finally it takes an array of XML::LibXML capable nodes and/or text.
-
-=back
+No methods othen then the inherited methods of XML::LibXML.
 
 =head1 AUTHOR
 

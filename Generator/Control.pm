@@ -27,7 +27,7 @@ use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.5.0";
+our $VERSION = "0.5.1";
 
 no strict "refs";
 
@@ -227,7 +227,7 @@ sub _append_children
 	}
 
 	## We have a special cases for controls.
-	if( $self->nodeName eq "item" )
+	if( $self->localname eq "item" )
 	{
 		if( defined( $$children{ 'value' } ) )
 		{
@@ -291,7 +291,7 @@ sub _set_attributes
 {
 	my( $self, $attributes ) = @_;
 
-	foreach( @{ $XFORMS_CONTROL{ $self->nodeName } } )
+	foreach( @{ $XFORMS_CONTROL{ $self->localname } } )
 	{
 		## If the attribute is defined, then go ahead and work with it.
 		if( defined( $$attributes{ $_ } ) )
@@ -314,7 +314,7 @@ sub _set_control_element_attributes
 {
 	my( $node, $attributes ) = @_;
 	
-	foreach( @{ $XFORMS_CONTROL_CHILDREN{ $node->nodeName } } )
+	foreach( @{ $XFORMS_CONTROL_CHILDREN{ $node->localname } } )
 	{
 		## If the attribute is defined, then go ahead and work with it.
 		if( defined( $$attributes{ $_ } ) )

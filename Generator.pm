@@ -30,7 +30,7 @@ use warnings;
 	'XML::XForms::Generator::UserInterface'		=>	[], 
 );
 
-our $VERSION = "0.5.0";
+our $VERSION = "0.5.1";
 
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##

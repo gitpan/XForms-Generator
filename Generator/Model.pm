@@ -29,7 +29,7 @@ our @ISA = qw( Exporter XML::LibXML::Element );
 
 our @EXPORT = qw( xforms_model );
 
-our $VERSION = "0.5.0";
+our $VERSION = "0.5.1";
 
 no strict "refs";
 

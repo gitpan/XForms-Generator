@@ -27,7 +27,7 @@ use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.5.0";
+our $VERSION = "0.5.1";
 
 no strict "refs";
 
@@ -119,7 +119,7 @@ sub _set_attributes
 {
 	my( $self, $attributes ) = @_;
 
-	foreach( @{ $XFORMS_ACTION{ $self->nodeName } }, "ev:event" )
+	foreach( @{ $XFORMS_ACTION{ $self->localname } }, "ev:event" )
 	{
 		## Events are special casses as we can do extra checking on them.
 		if( ( $_ eq "ev:event" ) && ( defined( $$attributes{ "ev:event" } ) ) )

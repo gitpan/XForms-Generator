@@ -1,6 +1,11 @@
 XML::XForms::Generator Revision History
 =======================================
 
+0.5.1 Mon Aug 12 23:36:50 2002
+	- Small bug in node identification with the result of attributes
+      not getting set correctly (maybe that isn't a small bug after all).
+	- Documentation updates and corrections.
+
 0.5.0 Tue Aug 06 22:23:53 2002
 	- Cleaned up the code for control generation which included removing
       some dead code *sigh* and introducing speed-ups.

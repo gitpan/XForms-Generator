@@ -26,7 +26,7 @@ use XML::LibXML;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.5.0";
+our $VERSION = "0.5.1";
 
 our @EXPORT = qw( _append_array_data
 				  _ensure_xpath
