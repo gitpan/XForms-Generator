@@ -29,25 +29,10 @@ our @ISA = qw( Exporter XML::LibXML::Element );
 
 our @EXPORT = qw( xforms_model );
 
-$XML::XForms::Generator::Model::VERSION = "0.3.5";
-
-## XForms Model Elements with attributes.
-our %MODEL_ELEMENT = (
-	'action'		=>	[],
-	'bind'			=>	[ 'ref', 'type', 'readOnly', 'required', 'relevant',
-						  'isValid', 'calculate', 'maxOccurs', 'minOccurs' ],
-	'extension'		=>	[],
-	'instance'		=>	[ 'href' ],
-	'schema'		=>	[ 'href' ],
-	'submitInfo'	=>	[ @SN_ATTR, 'action', 'mediaTypeExtension', 'method',
-						  'version', 'indent', 'encoding', 'mediaType', 
-						  'omitXMLDeclaration', 'standalone', 
-						  'CDATASectionElements', 'replace' ],
-	'privacy'		=>	[ 'href' ],
-);
+$XML::XForms::Generator::Model::VERSION = "0.4.0";
 
 ## Loop through the model elements and build convience functions for them.
-foreach my $element ( keys( %MODEL_ELEMENT ) )
+foreach my $element ( keys( %XFORMS_MODEL_CHILDREN ) )
 {
 	no strict "refs";
 	
@@ -68,7 +53,7 @@ foreach my $element ( keys( %MODEL_ELEMENT ) )
 		}
 
 		## Loop through each of the valid attributes.
-		foreach( @{ $MODEL_ELEMENT{ $element } } )
+		foreach( @{ $XFORMS_MODEL_CHILDREN{ $element } } )
 		{
 			if( defined( $$attribute{ $_ } ) )
 			{

@@ -13,7 +13,7 @@
 <!-- Output Method -->
 <xsl:output method="html" 
 			indent="yes"
-            omit-xml-delartaion="yes"
+            omit-xml-declartaion="yes"
             doctype-public="-//W3C//DTD HTML 4.0 Transitional//EN" />
 
 <!-- ******************************************************************** -->
@@ -97,7 +97,8 @@
 
 <!-- xforms:itemset -->
 <xsl:template match="xforms:itemset">
-	<!-- I am going to avoid implementing this now like the plague. -->
+	<!-- I am not going to implement this right away.  Its usefulness -->
+	<!-- in the conversion is debatable.                              -->
 </xsl:template>
 
 <!-- xforms:model -->
@@ -121,7 +122,7 @@
 
 <!-- xforms:range -->
 <xsl:template match="xforms:range">
-	<!-- I am avoiding implementing this like the plague! -->
+	<!-- I can't think of a good way of implementing the range element! -->
 </xsl:template>
 
 <!-- xforms:secret -->
@@ -238,9 +239,15 @@
 </xsl:template>
 
 <xsl:template match="xforms:group//xforms:group">
-	<td>
 	<xsl:apply-templates/>
-	</td>
+</xsl:template>
+
+<xsl:template match="xforms:switch">
+	<!-- I can't think of a good way of implementing this. -->
+</xsl:template>
+
+<xsl:template match="xforms:repeat">
+	<!-- I can't think of a good way of implementing this. -->
 </xsl:template>
 
 </xsl:stylesheet>

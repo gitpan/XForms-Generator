@@ -21,13 +21,15 @@ require Exporter::Cluster;
 use strict;
 use warnings;
 
-our @ISA = qw( Exporter::Cluster );
+@XML::XForms::Generator::ISA = qw( Exporter::Cluster );
 
-our %EXPORT_CLUSTER = ( 'XML::XForms::Generator::Action'	=>	[],
-						'XML::XForms::Generator::Control'	=>	[],
-						'XML::XForms::Generator::Model'		=>	[] );
+%XML::XForms::Generator::EXPORT_CLUSTER = ( 
+	'XML::XForms::Generator::Action'	=>	[],
+	'XML::XForms::Generator::Control'	=>	[],
+	'XML::XForms::Generator::Model'		=>	[], 
+);
 
-$XML::XForms::Generator::VERSION = "0.3.5";
+$XML::XForms::Generator::VERSION = "0.4.0";
 
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##

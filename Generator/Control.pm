@@ -27,34 +27,7 @@ use XML::XForms::Generator::Common;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-$XML::XForms::Generator::Control::VERSION = "0.3.5";
-
-## XForms Control Attribute Hash
-our %XFORMS_CONTROL = (
-	'button'		=>	[ @CM_ATTR ],
-	'choices'		=>	[],
-	'input'			=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
-	'item'			=>	[ 'id' ],
-	'itemset'		=>	[ @NS_ATTR ],
-	'output'		=>	[ @SN_ATTR ],
-	'range'			=>	[ @CM_ATTR, @SN_ATTR, 'start', 'end', 'stepSize' ],
-	'secret'		=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
-	'selectMany'	=>	[ @CM_ATTR, @SN_ATTR, 'selectUI' ],
-	'selectOne'		=>	[ @CM_ATTR, @SN_ATTR, 'selectUI', 'selection' ],
-	'submit'		=>	[ @CM_ATTR, 'submitInfo' ],
-	'textarea'		=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
-	'upload'		=>	[ @CM_ATTR, @SN_ATTR, 'mediaType' ],
-	'value'			=>	[ @SN_ATTR ],  );
-
-## XForms Common Child Elements
-our %CONTROL_ELEMENT = (
-	'action'	=>  [],
-	'actions'	=>  [],
-	'alert'		=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
-	'caption'	=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
-	'extension'	=>	[],
-	'help'		=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
-	'hint'		=>	[ @CM_ATTR, @SN_ATTR, 'href' ], );
+$XML::XForms::Generator::Control::VERSION = "0.4.0";
 
 no strict "refs";
 
@@ -89,7 +62,7 @@ foreach my $control ( keys( %XFORMS_CONTROL ) )
 
 ## Loop through each of the potential children of a control and generate
 ## a set and get function for each.
-foreach my $child ( keys( %CONTROL_ELEMENT ) )
+foreach my $child ( keys( %XFORMS_CONTROL_CHILDREN ) )
 {
 	## Generate a set function for the element.
 	*{ "set" . ucfirst( $child ) } = sub {
@@ -120,7 +93,7 @@ foreach my $child ( keys( %CONTROL_ELEMENT ) )
 
 			if( scalar( keys( %{ $attribute } ) ) > 0 )
 			{
-				foreach( @{ $CONTROL_ELEMENT{ $child } } )
+				foreach( @{ $XFORMS_CONTROL_CHILDREN{ $child } } )
 				{
 					$node->removeAttribute( $_ );
 				}
@@ -322,7 +295,7 @@ sub _set_control_element_attributes
 
 	my $name = $node->nodeName;
 	
-	foreach( @{ $CONTROL_ELEMENT{ $name } } )
+	foreach( @{ $XFORMS_CONTROL_CHILDREN{ $name } } )
 	{
 		## If the attribute is defined, then go ahead and work with it.
 		if( defined( $$attributes{ $_ } ) )

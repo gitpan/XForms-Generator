@@ -19,7 +19,7 @@ DEPENDENCIES
 
  *) Carp
  *) Exporter
- *) XML::LibXML
+ *) XML::LibXML 1.52
  *) Exporter::Cluster
 
 COPYRIGHT AND LICENSE

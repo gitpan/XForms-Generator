@@ -25,28 +25,9 @@ use Carp;
 use XML::LibXML;
 use XML::XForms::Generator::Common;
 
-our @ISA = qw( Exporter XML::LibXML::Element );
+@XML::XForms::Generator::Action::ISA = qw( Exporter XML::LibXML::Element );
 
-$XML::XForms::Generator::Action::VERSION = "0.3.5";
-
-## XForms Action Elements with attributes.
-our %XFORMS_ACTION = (
-	'dispatch'			=>		[ 'name', 'target', 'bubbles', 'cancelable' ],
-	'refresh'			=>		[],
-	'recalculate'		=>		[],
-	'revalidate'		=>		[],
-	'setFocus'			=>		[ 'idref' ],
-	'loadURI'			=>		[ @SN_ATTR, 'xlink:href', 'xlink:show' ],
-	'setValue'			=>		[ @SN_ATTR, 'value' ],
-	'submitInstance'	=>		[ 'id', 'submitInfo' ],
-	'resetInstance'		=>		[ 'model' ],
-	'setRepeatCursor'	=>		[ 'repeat', 'cursor' ],
-	'insert'			=>		[ @NS_ATTR, 'at', 'position' ],
-	'delete'			=>		[ @NS_ATTR, 'at' ],
-	'toggle'			=>		[ 'case' ],
-	'script'			=>		[ 'type', 'role' ],
-	'message'			=>		[ @SN_ATTR, 'xlink:href', 'level' ]
-);
+$XML::XForms::Generator::Action::VERSION = "0.4.0";
 
 ## Loop through the model elements and build convience functions for them.
 foreach my $action ( keys( %XFORMS_ACTION ) )
@@ -140,10 +121,21 @@ sub _set_attributes
 	
 	my $action = $self->nodeName;
 
-	foreach( @{ $XFORMS_ACTION{ $action } } )
+	foreach( @{ $XFORMS_ACTION{ $action } }, "ev:event" )
 	{
-		## If the attribute is defined, then go ahead and work with it.
-		if( defined( $$attributes{ $_ } ) )
+		## Events are special casses as we can do extra checking on them.
+		if( ( $_ eq "ev:event" ) && ( defined( $$attributes{ "ev:event" } ) ) )
+		{
+			## Look to see if the event actually exists.
+			if( exists( $XFORMS_EVENT{ $$attributes{ $_ } } ) )
+			{
+				## Attach the attribute like we normally do.
+				$self->setAttribute( $_, $$attributes{ $_ } );
+				## Delete it from the attribute listing.
+				delete( $$attributes{ $_ } );
+			}		
+		}
+		elsif( defined( $$attributes{ $_ } ) )
 		{
 			## Attach the attribute to the action node.
 			$self->setAttribute( $_, $$attributes{ $_ } );

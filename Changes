@@ -1,6 +1,13 @@
 XML::XForms::Generator Revision History
 =======================================
-0.3.5 Wed Jul 17 01:42:07 CDT 2002
+
+0.4.0 Sun Jul 21 13:59:30 2002
+	- Moved more of the 'schema' control variables into Common.pm
+	- Added a hash with all of the possible events in XForms.
+	- Fixed a small typo in Common.pm.
+	- More modifications to the XForms->HTML XSLT file.
+
+0.3.5 Wed Jul 17 01:42:07 2002
 	- Moved some redundant code into Common.pm.
 	- Started implementing actions in Action.pm
 	- Added the start of a XSLT file for transforming XForms into HTML forms.

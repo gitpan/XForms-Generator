@@ -26,13 +26,18 @@ use XML::LibXML;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-$XML::XForms::Generator::Common::VERSION = "0.3.5";
+$XML::XForms::Generator::Common::VERSION = "0.4.0";
 
 our @EXPORT = qw( _append_array_data
 				  _ensure_xpath
 				  @CM_ATTR
 				  @NS_ATTR
 				  @SN_ATTR
+				  %XFORMS_ACTION
+				  %XFORMS_EVENT
+				  %XFORMS_CONTROL
+				  %XFORMS_CONTROL_CHILDREN
+				  %XFORMS_MODEL_CHILDREN
 				  $XFORMS_NSPREFIX
 				  $XFORMS_NSURI );
 
@@ -40,12 +45,110 @@ our @EXPORT = qw( _append_array_data
 our $XFORMS_NSPREFIX = "xforms";
 our $XFORMS_NSURI = "http://www.w3.org/2002/01/xforms";
 
+## Event Namespace Variable
+our $EVENT_NSPREFIX = "ev";
+our $EVENT_NSURI = "http://www.w3.org/2001/xml-events";
+
 ## XForms Common Attributes
 our @CM_ATTR = qw( xml:lang class navIndex accessKey );
 ### XForms Single Node Binding Attributes
 our @SN_ATTR = qw( ref model bind );
 ### XForms Nodeset Binding Attributes
 our @NS_ATTR = qw( nodeset model bind );
+
+## XForms Action Elements with attributes.
+our %XFORMS_ACTION = (
+	'dispatch'			=>		[ 'name', 'target', 'bubbles', 'cancelable' ],
+	'refresh'			=>		[],
+	'recalculate'		=>		[],
+	'revalidate'		=>		[],
+	'setFocus'			=>		[ 'idref' ],
+	'loadURI'			=>		[ @SN_ATTR, 'xlink:href', 'xlink:show' ],
+	'setValue'			=>		[ @SN_ATTR, 'value' ],
+	'submitInstance'	=>		[ 'id', 'submitInfo' ],
+	'resetInstance'		=>		[ 'model' ],
+	'setRepeatCursor'	=>		[ 'repeat', 'cursor' ],
+	'insert'			=>		[ @NS_ATTR, 'at', 'position' ],
+	'delete'			=>		[ @NS_ATTR, 'at' ],
+	'toggle'			=>		[ 'case' ],
+	'script'			=>		[ 'type', 'role' ],
+	'message'			=>		[ @SN_ATTR, 'xlink:href', 'level' ],
+);
+
+## XForms Event Elements
+our %XFORMS_EVENT = (
+	'activate'			=>	[],
+	'alert'				=>	[],
+	'blur'				=>	[],
+	'delete'			=>	[],
+	'deselect'			=>	[],
+	'focus'				=>	[],
+	'help'				=>	[],
+	'hint'				=>	[],
+	'initializeDone'	=>	[],
+	'insert'			=>	[],
+	'invalid'			=>	[],
+	'modelConstruct'	=>	[],
+	'modelInitialize'	=>	[],
+	'next'				=>	[],
+	'previous'			=>	[],
+	'scrollFirst'		=>	[],
+	'scrollLast'		=>	[],
+	'select'			=>	[],
+	'submit'			=>	[],
+	'UIInitialize'		=>	[],
+	'valid'				=>	[],
+	'refresh'			=>	[],
+	'recalculate'		=>	[],
+	'reset'				=>	[],
+	'revalidate'		=>	[],
+	'valueChanging'		=>	[],
+	'valueChanged'		=>	[],
+);
+
+## XForms Control Attribute Hash
+our %XFORMS_CONTROL = (
+	'button'		=>	[ @CM_ATTR ],
+	'choices'		=>	[],
+	'input'			=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
+	'item'			=>	[ 'id' ],
+	'itemset'		=>	[ @NS_ATTR ],
+	'output'		=>	[ @SN_ATTR ],
+	'range'			=>	[ @CM_ATTR, @SN_ATTR, 'start', 'end', 'stepSize' ],
+	'secret'		=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
+	'selectMany'	=>	[ @CM_ATTR, @SN_ATTR, 'selectUI' ],
+	'selectOne'		=>	[ @CM_ATTR, @SN_ATTR, 'selectUI', 'selection' ],
+	'submit'		=>	[ @CM_ATTR, 'submitInfo' ],
+	'textarea'		=>	[ @CM_ATTR, @SN_ATTR, 'inputMode' ],
+	'upload'		=>	[ @CM_ATTR, @SN_ATTR, 'mediaType' ],
+	'value'			=>	[ @SN_ATTR ],  
+);
+
+## XForms Control Common Child Elements
+our %XFORMS_CONTROL_CHILDREN = (
+	'action'	=>  [],
+	'actions'	=>  [],
+	'alert'		=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
+	'caption'	=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
+	'extension'	=>	[],
+	'help'		=>	[ @CM_ATTR, @SN_ATTR, 'href' ],
+	'hint'		=>	[ @CM_ATTR, @SN_ATTR, 'href' ], 
+);
+
+## XForms Model Elements with attributes.
+our %XFORMS_MODEL_CHILDREN = (
+	'action'		=>	[],
+	'bind'			=>	[ 'ref', 'type', 'readOnly', 'required', 'relevant',
+						  'isValid', 'calculate', 'maxOccurs', 'minOccurs' ],
+	'extension'		=>	[],
+	'instance'		=>	[ 'href' ],
+	'schema'		=>	[ 'href' ],
+	'submitInfo'	=>	[ @SN_ATTR, 'action', 'mediaTypeExtension', 'method',
+						  'version', 'indent', 'encoding', 'mediaType', 
+						  'omitXMLDeclaration', 'standalone', 
+						  'CDATASectionElements', 'replace' ],
+	'privacy'		=>	[ 'href' ],
+);
 
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##
@@ -94,9 +197,9 @@ sub _append_array_data
 	foreach( @_ )
 	{
 		## Look for elements that are 'attachable'.
-		if( $_->isa( "XML::LibXML::Node" ) )
+		if( ( $_ ne "" ) && ( $_->isa( "XML::LibXML::Node" ) ) )
 		{
-			$node->apppendChild( $_ );
+			$node->appendChild( $_ );
 		}
 		else
 		{
