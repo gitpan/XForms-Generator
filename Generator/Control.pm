@@ -26,7 +26,7 @@ use XML::LibXML;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.2.0";
+$XML::XForms::Generator::Control::VERSION = "0.3.0";
 
 our $XFORMS_NSURI = "http://www.w3.org/2002/01/xforms";
 our $XFORMS_NSPREFIX = "xforms";
@@ -77,18 +77,18 @@ foreach my $control ( keys( %XFORMS_CONTROL ) )
 
 		## Clean up control to get the correct type.
 		$control =~ s/^xforms_//g;
-	
-		## Pull in the parameters of the function.
+		
+		## Pull in the parameters.
 		my %params = @_;
 		
 		## Generate a the new control.
 		my $self = XML::XForms::Generator::Control->new( __type__ => $control );
 		
 		## Append the appropriate attributes of the control.
-		$self->setAttributes( %params );
+		$self->_set_attributes( \%params );
 
 		## Append the the children of the control.
-		$self->appendChildren( %params );
+		$self->_append_children( \%params );
 		
 		## Finally make it namespace happy.
 		$self->setNamespace( $XFORMS_NSURI, $XFORMS_NSPREFIX, 1 );
@@ -199,89 +199,6 @@ sub DESTROY
 ##==================================================================##
 
 ##----------------------------------------------##
-##  appendChildren                              ##
-##----------------------------------------------##
-##  Convience function in which one can set     ##
-##  common children quickly.                    ##
-##----------------------------------------------##
-sub appendChildren
-{
-	my( $self, $children ) = @_;
-
-	## Loop through all the common children of controls and attach them
-	## if they are available.
-	foreach( qw( caption help hint alert action ) )
-	{
-		if( defined( $$children{ $_ } ) )
-		{
-			my $node = XML::LibXML::Element->new( $_ );
-	
-			$node->appendText( $$children{ $_ } );
-
-			$self->appendChild( $node );
-
-			delete( $$children{ $_ } );
-		}
-	}
-
-	## Anything left over at this point we can only assume are
-	## extension "children" nodes.
-	while( my( $key, $value ) = each( %{ $children } ) )
-	{
-		## Look for the extension to see if it exists.
-		my $extension = $self->getChildrenByTagName( 'extension' );
-		
-		$extension = $extension->shift();
-		
-		## If this is the first 'extension' element, the extension 
-		## isn't defined yet and we need to do that.
-		if( !defined( $extension ) )
-		{
-			## Generate the extension node.
-			$extension = XML::LibXML::Element->new( "extension" );
-
-			## Attach the node to the control.
-			$self->appendChild( $extension );
-		}
-		
-		my $node = XML::LibXML::Element->new( $key );
-
-		$node->appendText( $value );
-		
-		$extension->appendChild( $node );
-	}
-
-	return;
-}
-
-##----------------------------------------------##
-##  setAttributes                               ##
-##----------------------------------------------##
-##  Convience function in which you can set     ##
-##  name/value attribute pairs quickly.         ##
-##----------------------------------------------##
-sub setAttributes
-{
-	my( $self, $attributes ) = @_;
-
-	my $control = $self->nodeName;
-	
-	foreach( @{ $XFORMS_CONTROL{$control} } )
-	{
-		## If the attribute is defined, then go ahead and work with it.
-		if( defined( $$attributes{ $_ } ) )
-		{
-			## Attach the attribute to the control
-			$self->setAttribute( $_, $$attributes{ $_ } );
-			## Delete it from the attribute listing.
-			delete( $$attributes{ $_ } );
-		}
-	}
-	
-	return;	
-}
-
-##----------------------------------------------##
 ##  setInstanceData                             ##
 ##----------------------------------------------##
 ##  Method for assisting in the creation of     ##
@@ -349,6 +266,62 @@ sub _append_array_data
 }
 
 ##----------------------------------------------##
+##  _append_children                            ##
+##----------------------------------------------##
+##  Convience function in which one can set     ##
+##  common children quickly.                    ##
+##----------------------------------------------##
+sub _append_children
+{
+	my( $self, $children ) = @_;
+
+	## Loop through all the common children of controls and attach them
+	## if they are available.
+	foreach( qw( caption help hint alert action ) )
+	{
+		if( defined( $$children{ $_ } ) )
+		{
+			my $node = XML::LibXML::Element->new( $_ );
+	
+			$node->appendText( $$children{ $_ } );
+
+			$self->appendChild( $node );
+
+			delete( $$children{ $_ } );
+		}
+	}
+
+	## Anything left over at this point we can only assume are
+	## extension "children" nodes.
+	while( my( $key, $value ) = each( %{ $children } ) )
+	{
+		## Look for the extension to see if it exists.
+		my $extension = $self->getChildrenByTagName( 'extension' );
+		
+		$extension = $extension->shift();
+		
+		## If this is the first 'extension' element, the extension 
+		## isn't defined yet and we need to do that.
+		if( !defined( $extension ) )
+		{
+			## Generate the extension node.
+			$extension = XML::LibXML::Element->new( "extension" );
+
+			## Attach the node to the control.
+			$self->appendChild( $extension );
+		}
+		
+		my $node = XML::LibXML::Element->new( $key );
+
+		$node->appendText( $value );
+		
+		$extension->appendChild( $node );
+	}
+
+	return;
+}
+
+##----------------------------------------------##
 ##  _ensure_xpath                               ##
 ##----------------------------------------------##
 ##  Convience function that will take a xpath   ##
@@ -403,6 +376,33 @@ sub _ensure_xpath
 }
 
 ##----------------------------------------------##
+##  _set_attributes                             ##
+##----------------------------------------------##
+##  Convience function in which you can set     ##
+##  name/value attribute pairs quickly.         ##
+##----------------------------------------------##
+sub _set_attributes
+{
+	my( $self, $attributes ) = @_;
+
+	my $control = $self->nodeName;
+	
+	foreach( @{ $XFORMS_CONTROL{ "xforms_$control" } } )
+	{
+		## If the attribute is defined, then go ahead and work with it.
+		if( defined( $$attributes{ $_ } ) )
+		{
+			## Attach the attribute to the control
+			$self->setAttribute( $_, $$attributes{ $_ } );
+			## Delete it from the attribute listing.
+			delete( $$attributes{ $_ } );
+		}
+	}
+	
+	return;	
+}
+
+##----------------------------------------------##
 ##  _set_control_element_attributes             ##
 ##----------------------------------------------##
 ##  Convience function to set attributes of     ##
@@ -442,20 +442,81 @@ __END__
 
 XML::XForms::Generator::Control
 
+=head1 SYNOPSIS
+
+ use XML::XForms::Generator;
+
+ my $control = xforms_input( { class => 'someclass' },
+                             caption => 'Username:',	
+                             help    => 'Enter your username!' );
+
+ $control->setInstanceData( $model, '/username', 'dhageman' );
+
 =head1 DESCRIPTION
 
-XForms::Control is a DOM wrapper to ease the creation of XML that is complaint
-with the schema of the W3's XForms specification.
+The XML::LibXML DOM wrapper the XML::XForms::Generator module provides is
+based on convience functions for quick creation of XForms controls.  These
+functions are named after the XForms control they create prefixed by 
+'xforms_'.  The result of 'xforms_' convience functions is an object
+with all of the methods available to a standard XML::LibXML::Element
+along with all of the convience methods listed further down in this 
+documentation under the METHODS section.
 
-The XForms webpage is located at: http://www.w3.org/MarkUp/Forms/
+Each XForms control function takes a hash reference to set of name => value
+pairs that describe the control's attributes and set of name => value
+pairs that are associated with a controls child elements.
+
+=head1 XFORMS CONTROLS
+
+ button     - Generates a button
+ choices    - optgroup replacement
+ input      - Simple text entry box
+ item       - Wrapper for a value and caption
+ itemset    - Collection of items
+ output     - Display instance data
+ range      - Selection of a set of contiguous data
+ secret     - "Password" entry box
+ selectMany - Multi-selection box
+ selectOne  - Selection box
+ submit     - Submit button
+ textarea   - Large text entry box
+ upload     - Control for file uploads
+ value      - Data part of an item
 
 =head1 METHODS
 
 =over 4 
 
-=item appendChildren
+=item setAlert ( { ATTRIBUTES }, @CHILDREN )
 
-=item setAttributes
+Convience method to set the alert child of a control.  
+This method takes a reference to a hash of name => value pairings for the attributes and an array of XML::LibXML enable DOM data or text.  Please note that if an attribute is given that is not part of the XForms specification that it will be ignored.
+
+=item setCaption ( { ATTRIBUTES }, @CHILDREN )
+
+Convience method to set the caption child of a control.
+This method takes a reference to a hash of name => value pairings for the attributes and an array of XML::LibXML enable DOM data or text.  Please note that if an attribute is given that is not part of the XForms specification that it will be ignored.
+
+=item setExtension ( { ATTRIBUTES }, @CHILDREN )
+
+Convience method to set the extension child of a control.
+This method takes a reference to a hash of name => value pairings for the attributes and an array of XML::LibXML enable DOM data or text.  Please note that if an attribute is given that is not part of the XForms specification that it will be ignored.
+
+=item setHelp ( { ATTRIBUTES }, @CHILDREN )
+
+Convience method to set the help child of a control.
+This method takes a reference to a hash of name => value pairings for the attributes and an array of XML::LibXML enable DOM data or text.  Please note that if an attribute is given that is not part of the XForms specification that it will be ignored.
+
+=item setHint ( { ATTRIBUTES }, @CHILDREN )
+
+Convience method to set the hint child of a control.
+This method takes a reference to a hash of name => value pairings for the attributes and an array of XML::LibXML enable DOM data or text.  Please note that if an attribute is given that is not part of the XForms specification that it will be ignored.
+
+=item setInstanceData ( MODEL, BIND_REF, @DATA )
+
+This method takes a XML::XForms::Generator::Model object as its first
+argument, a very very basic XPath statement for the instance data location
+and finally it takes an array of XML::LibXML capable nodes and/or text.
 
 =back
 
@@ -465,7 +526,10 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 
 =head1 SEE ALSO
 
-L<XML::LibXML>, L<XML::LibXML::DOM>
+ XML::XForms::Generator
+ XML::XForms::Generator::Model
+ XML::LibXML
+ XML::LibXML::DOM
 
 =head1 COPYRIGHT AND LICENSE
 

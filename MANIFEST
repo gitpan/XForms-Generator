@@ -1,8 +1,9 @@
 Changes
+example/example.pl
 Generator.pm
 Generator/Control.pm
 Generator/Model.pm
 Makefile.PL
 MANIFEST
 README
-test.pl
+t/01_use.t

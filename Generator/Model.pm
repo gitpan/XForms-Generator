@@ -26,7 +26,7 @@ use XML::LibXML;
 
 our @ISA = qw( Exporter XML::LibXML::Element );
 
-our $VERSION = "0.2.0";
+$XML::XForms::Generator::Model::VERSION = "0.2.0";
 
 our @EXPORT = qw( xforms_model );
 
@@ -262,56 +262,115 @@ __END__
 
 XML::XForms::Generator::Model
 
+=head1 SYNOPSIS
+
+ use XML::XForms::Generator;
+
+ my $model = xforms_model( id => 'MyFirstXForms' );
+
 =head1 DESCRIPTION
 
-XForms::Model is a DOM wrapper to ease the creation of XML that is complaint
-with the schema of the W3's XForms specification.
-
-The XForms webpage is located at: http://www.w3.org/MarkUp/Forms/
+The XML::XForms::Generator::Model package is an implementation of the 
+XForms model element.  This package has a single convience function 
+(xforms_model) that takes a parameter 'id' to uniquely identify that model 
+element in the document.  The result of calling this function is a
+object that has all the methods available to a XML::LibXML::Element object
+plus the methods listed below:
 
 =head1 METHODS
 
 =over 4 
 
-=item appendChildren
+=item getAction ()
 
-=item getAction
+Returns the action child of a model.
 
-=item getBind
+=item getBind ()
 
-=item getInstance
+Returns the binding children of a model.
 
-=item getExtension
+=item getInstance ()
 
-=item getPrivacy
+Returns the instance data section associated with a model.
 
-=item getSchema
+=item getExtension ()
 
-=item getSubmitInfo
+Returns any extension children of a model.
 
-=item setAttributes
+=item getPrivacy ()
 
-=item setAction
+Returns the privary elements.
 
-=item setBind
+=item getSchema ()
 
-=item setInstance
+Returns the schema child of a model.
 
-=item setExtension
+=item getSubmitInfo ()
 
-=item setPrivacy
+Returns the submitInfo data.
 
-=item setSchema
+=item setAction ( { ATTRIBUTES }, @DATA )
 
-=item setSubmitInfo
+Sets the action data of a model.
+This method takes a hash refernce of name => value pairs for the attributes
+of the model's child.  The attributes are attached on the basis of their
+legitamacy when compared to the XForms schema.  If it isn't a recognized
+attribute then it won't get attached.  This method also takes ana array
+of XML::LibXML capable nodes and/or text data.
 
-=back
+=item setBind ( { ATTRIBUTES }, @DATA )
 
-=head1 FUNCTIONS
+Sets the binding information of a model.
+This method takes a hash refernce of name => value pairs for the attributes
+of the model's child.  The attributes are attached on the basis of their
+legitamacy when compared to the XForms schema.  If it isn't a recognized
+attribute then it won't get attached.  This method also takes ana array
+of XML::LibXML capable nodes and/or text data.
 
-=over 4
+=item setInstance ( { ATTRIBUTES }, @DATA )
 
-=item xforms_model
+Sets the instance data set of a model.
+This method takes a hash refernce of name => value pairs for the attributes
+of the model's child.  The attributes are attached on the basis of their
+legitamacy when compared to the XForms schema.  If it isn't a recognized
+attribute then it won't get attached.  This method also takes ana array
+of XML::LibXML capable nodes and/or text data.
+
+=item setExtension ( { ATTRIBUTES }, @DATA )
+
+Sets the extensions of a model.
+This method takes a hash refernce of name => value pairs for the attributes
+of the model's child.  The attributes are attached on the basis of their
+legitamacy when compared to the XForms schema.  If it isn't a recognized
+attribute then it won't get attached.  This method also takes ana array
+of XML::LibXML capable nodes and/or text data.
+
+=item setPrivacy ( { ATTRIBUTES }, @DATA )
+
+Sets the privacy methodology of a model.
+This method takes a hash refernce of name => value pairs for the attributes
+of the model's child.  The attributes are attached on the basis of their
+legitamacy when compared to the XForms schema.  If it isn't a recognized
+attribute then it won't get attached.  This method also takes ana array
+of XML::LibXML capable nodes and/or text data.
+
+=item setSchema ( { ATTRIBUTES }, @DATA )
+
+Sets the schema information of a model.
+This method takes a hash refernce of name => value pairs for the attributes
+of the model's child.  The attributes are attached on the basis of their
+legitamacy when compared to the XForms schema.  If it isn't a recognized
+attribute then it won't get attached.  This method also takes ana array
+of XML::LibXML capable nodes and/or text data.
+
+=item setSubmitInfo ( { ATTRIBUTES }, @DATA )
+
+Sets the submitInfo data of a model.
+This method takes a hash refernce of name => value pairs for the attributes
+of the model's child.  The attributes are attached on the basis of their
+legitamacy when compared to the XForms schema.  If it isn't a recognized
+attribute then it won't get attached.  This method also takes ana array
+of XML::LibXML capable nodes and/or text data.
 
 =back
 
@@ -321,7 +380,10 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 
 =head1 SEE ALSO
 
-L<XML::LibXML>, L<XML::LibXML::DOM>
+ XML::XForms::Generator
+ XML::XForms::Generator::Control
+ XML::LibXML
+ XML::LibXML::DOM
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -1,6 +1,12 @@
 XML::XForms::Generator Revision History
 =======================================
 
+0.3.0 Tue Jul 09 02:37:18 2002
+	- Documentation has been added for all major sections.
+	- A few misc. bugs were stomped out.
+	- An example was added to show basic functionality.
+	- The test system was revamped and new tests were added.
+
 0.2.0 Mon Jul 01 15:10:32 2002
 	- Basic functionality has been completed.
 

@@ -1,5 +1,5 @@
-XML::XForms::Generator version 0.2.0
-====================================
+XML::XForms::Generator README
+=============================
 
 Perl library designed to assist a user in the creation of document elements
 based on the W3's XForms working draft.

@@ -26,7 +26,7 @@ our @ISA = qw( Exporter::Cluster );
 our %EXPORT_CLUSTER = ( 'XML::XForms::Generator::Model'		=>	[],
 						'XML::XForms::Generator::Control'	=>	[] );
 
-our $VERSION = "0.2.0";
+$XML::XForms::Generator::VERSION = "0.3.0";
 
 ##==================================================================##
 ##  Constructor(s)/Deconstructor(s)                                 ##
@@ -61,8 +61,9 @@ XML::XForms::Generator
 
 =head1 DESCRIPTION
 
-XForms is a DOM wrapper to ease the creation of XML that is complaint
-with the schema of the W3's XForms specification.
+XForms is a XML::LibXML DOM wrapper to ease the creation of XML that is 
+complaint with the schema of the W3's XForms last call working draft 
+specification.
 
 The XForms webpage is located at: http://www.w3.org/MarkUp/Forms/
 
@@ -72,7 +73,10 @@ D. Hageman E<lt>dhageman@dracken.comE<gt>
 
 =head1 SEE ALSO
 
-L<XML::LibXML>, L<XML::LibXML::DOM>
+ XML::XForms::Generator::Control
+ XML::XForms::Generator::Model
+ XML::LibXML
+ XML::LibXML::DOM
 
 =head1 COPYRIGHT AND LICENSE
 
